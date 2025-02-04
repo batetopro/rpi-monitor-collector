@@ -64,7 +64,7 @@ class SSHConfigurationModel(models.Model):
 
     device = models.OneToOneField(
         DeviceModel,
-        on_delete=models.PROTECT, null=False, primary_key=True,
+        on_delete=models.CASCADE, null=False, primary_key=True,
         related_name='ssh_conf'
     )
     ssh_key = models.ForeignKey(
@@ -87,7 +87,7 @@ class HostInfoModel(models.Model):
 
     device = models.OneToOneField(
         DeviceModel,
-        on_delete=models.PROTECT, null=False, primary_key=True,
+        on_delete=models.CASCADE, null=False, primary_key=True,
         related_name='host_info'
     )
     hostname = models.CharField(max_length=255, null=False)
@@ -109,7 +109,7 @@ class DeviceUsageModel(models.Model):
         verbose_name_plural = "Device Usage"
 
     device = models.ForeignKey(
-        DeviceModel, on_delete=models.PROTECT, null=False
+        DeviceModel, on_delete=models.CASCADE, null=False
     )
 
     cpu_frequency = models.PositiveBigIntegerField(null=True)
