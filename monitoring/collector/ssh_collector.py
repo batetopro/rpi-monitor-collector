@@ -58,6 +58,7 @@ class SSHCollector:
                         hostname=conf['hostname'],
                         port=conf['port'],
                         username=conf['user'],
+                        allow_agent=True,
                     )
                 except Exception as ex:
                     self.handle_error(ex.__repr__(), 60)
