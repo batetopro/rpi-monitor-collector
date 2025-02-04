@@ -50,7 +50,7 @@ class DeviceAdminModel(admin.ModelAdmin):
 
     list_display_links = ["id", ]
 
-    list_filter = ('status', )
+    # list_filter = ('status', )
 
     def get_ordering(self, request):
         return ("id", )
@@ -72,14 +72,38 @@ class DeviceAdminModel(admin.ModelAdmin):
             },
         ),
         (
-            'Usage',
+            'Memory',
             {
                 "fields": [
                     "device_ram",
+                    "device_swap",
+                ],
+            },
+        ),
+        (
+            'CPU',
+            {
+                "fields": [
                     "device_cpu",
                     "device_cpu_temperature",
                     "device_cpu_frequency",
+                ],
+            },
+        ),
+        (
+            'Disk',
+            {
+                "fields": [
                     "device_disk_space",
+                    "device_disk_io",
+                ],
+            },
+        ),
+        (
+            'Network',
+            {
+                "fields": [
+                    "device_network_io",
                 ],
             },
         ),
@@ -106,10 +130,13 @@ class DeviceAdminModel(admin.ModelAdmin):
     readonly_fields = (
         "device_status",
         "device_ram",
+        "device_swap",
         "device_cpu",
         "device_cpu_temperature",
         "device_cpu_frequency",
         "device_disk_space",
+        "device_disk_io",
+        "device_network_io",
         "device_last_seen",
         "up_for",
         "up_since",
@@ -132,7 +159,7 @@ class DeviceAdminModel(admin.ModelAdmin):
 
         return format_html('&nbsp;|&nbsp;'.join(actions))
 
-    @admin.display(description="CPU", ordering='cpu_usage')
+    @admin.display(description="CPU usage", ordering='cpu_usage')
     def device_cpu(self, obj):
         if obj.cpu_usage is None:
             return 'N/A'
@@ -148,7 +175,7 @@ class DeviceAdminModel(admin.ModelAdmin):
             f'<span class="badge {badge_class}">{obj.cpu_usage} %</span>'
         )
 
-    @admin.display(description="Temperature", ordering='cpu_temperature')
+    @admin.display(description="CPU temp", ordering='cpu_temperature')
     def device_cpu_temperature(self, obj):
         if obj.cpu_temperature is None:
             return 'N/A'
@@ -186,7 +213,42 @@ class DeviceAdminModel(admin.ModelAdmin):
             '''
         )
 
-    @admin.display(description="Used disk", ordering='disk_space_used')
+    @admin.display(description="Disk I/O", ordering='disk_io_write_bytes')
+    def device_disk_io(self, obj):
+        if obj.disk_io_read_bytes is not None:
+            disk_io_read_bytes = obj.disk_io_read_bytes
+        else:
+            disk_io_read_bytes = '-'
+
+        if obj.disk_io_write_bytes is not None:
+            disk_io_write_bytes = obj.disk_io_write_bytes
+        else:
+            disk_io_write_bytes = '-'
+
+        if disk_io_read_bytes != '-' and disk_io_write_bytes != '-':
+            disk_io_read_bytes = round(
+                (disk_io_read_bytes / (1024 * 1024 * 1024)), 2
+            )
+            disk_io_write_bytes = round(
+                (disk_io_write_bytes / (1024 * 1024 * 1024)), 2
+            )
+            return format_html(
+                f'''
+                Read:
+                <span class="badge bg-secondary">
+                    {disk_io_read_bytes} GBi
+                </span>
+                <br>
+                Write:
+                <span class="badge bg-secondary">
+                    {disk_io_write_bytes} GBi
+                </span>
+                '''
+            )
+        else:
+            return 'N/A'
+
+    @admin.display(description="Disk space", ordering='disk_space_used')
     def device_disk_space(self, obj):
         if obj.disk_space_used is not None:
             used_disk_space = obj.disk_space_used
@@ -209,8 +271,12 @@ class DeviceAdminModel(admin.ModelAdmin):
             else:
                 badge_class = 'bg-secondary'
 
-            show_used_disk_space = round(used_disk_space / (1024 * 1024 * 1024), 2)
-            show_total_disk_space = round(total_disk_space / (1024 * 1024 * 1024), 2)
+            show_used_disk_space = round(
+                used_disk_space / (1024 * 1024 * 1024), 2
+            )
+            show_total_disk_space = round(
+                total_disk_space / (1024 * 1024 * 1024), 2
+            )
             return format_html(
                 f'''<span class="badge {badge_class}">
                     {show_used_disk_space} / {show_total_disk_space} GBi
@@ -261,7 +327,42 @@ class DeviceAdminModel(admin.ModelAdmin):
                 ''')
         return 'N/A'
 
-    @admin.display(description="Used RAM", ordering='used_ram')
+    @admin.display(description="Network I/O", ordering='net_io_bytes_sent')
+    def device_network_io(self, obj):
+        if obj.net_io_bytes_recv is not None:
+            net_io_bytes_recv = obj.net_io_bytes_recv
+        else:
+            net_io_bytes_recv = '-'
+
+        if obj.net_io_bytes_sent is not None:
+            net_io_bytes_sent = obj.net_io_bytes_sent
+        else:
+            net_io_bytes_sent = '-'
+
+        if net_io_bytes_recv != '-' and net_io_bytes_sent != '-':
+            net_io_bytes_recv = round(
+                (net_io_bytes_recv / (1024 * 1024 * 1024)), 2
+            )
+            net_io_bytes_sent = round(
+                (net_io_bytes_sent / (1024 * 1024 * 1024)), 2
+            )
+            return format_html(
+                f'''
+                Received:
+                <span class="badge bg-secondary">
+                    {net_io_bytes_recv} GBi
+                </span>
+                <br>
+                Transmitted:
+                <span class="badge bg-secondary">
+                    {net_io_bytes_sent} GBi
+                </span>
+                '''
+            )
+        else:
+            return 'N/A'
+
+    @admin.display(description="Virtual memory", ordering='used_ram')
     def device_ram(self, obj):
         if obj.used_ram is not None:
             used_ram = round(obj.used_ram / (1024 * 1024), 2)
@@ -291,7 +392,7 @@ class DeviceAdminModel(admin.ModelAdmin):
         return format_html(
             f'''
             <span class="badge {badge_class}">
-                {used_ram} / {total_ram} MB
+                {used_ram} / {total_ram} MBi
             </span>'''
         )
 
@@ -310,6 +411,43 @@ class DeviceAdminModel(admin.ModelAdmin):
             {obj.status}
             </span>
             '''
+        )
+
+    @admin.display(description="Swap", ordering='used_swap')
+    def device_swap(self, obj):
+        if obj.used_swap is not None:
+            used_swap = round(obj.used_swap / (1024 * 1024), 2)
+        else:
+            used_swap = '-'
+
+        if obj.total_swap is not None:
+            total_swap = round(obj.used_swap / (1024 * 1024), 2)
+        else:
+            total_swap = '-'
+
+        if used_swap == '-' and total_swap == '-':
+            return 'N/A'
+
+        if used_swap == '-' or total_swap == '-':
+            badge_class = 'bg-light'
+        else:
+            if total_swap > 0:
+                swap_ratio = (used_swap / total_swap) * 100
+            else:
+                swap_ratio = 0
+
+            if swap_ratio >= 85:
+                badge_class = 'bg-danger'
+            elif swap_ratio >= 70:
+                badge_class = 'bg-warning'
+            else:
+                badge_class = 'bg-secondary'
+
+        return format_html(
+            f'''
+            <span class="badge {badge_class}">
+                {used_swap} / {total_swap} MBi
+            </span>'''
         )
 
     @admin.display(description="Info")

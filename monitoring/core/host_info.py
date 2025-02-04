@@ -45,15 +45,22 @@ class HostInfo:
         return self.entry
 
     def update_usage(self, cpu_usage, cpu_frequency, cpu_temperature,
-                     disk_space_available, disk_space_used, used_ram,
-                     current_date):
+                     disk_space_available, disk_space_used, disk_io_read_bytes,
+                     disk_io_write_bytes, net_io_bytes_recv, net_io_bytes_sent,
+                     used_ram, used_swap, total_swap, current_date):
 
         self.device.cpu_usage = cpu_usage
         self.device.cpu_frequency = cpu_frequency
         self.device.cpu_temperature = cpu_temperature
         self.device.disk_space_available = disk_space_available
         self.device.disk_space_used = disk_space_used
+        self.device.disk_io_read_bytes = disk_io_read_bytes
+        self.device.disk_io_write_bytes = disk_io_write_bytes
+        self.device.net_io_bytes_recv = net_io_bytes_recv
+        self.device.net_io_bytes_sent = net_io_bytes_sent
         self.device.used_ram = used_ram
+        self.device.used_swap = used_swap
+        self.device.total_swap = total_swap
         self.device.last_seen = current_date
         self.device.save()
 

@@ -1,4 +1,7 @@
 function autoRefreshPage() {
     window.location = window.location.href;
 }
-setInterval('autoRefreshPage()', 5000);
+
+if (!window.location.href.endsWith('change/')){
+    setInterval('autoRefreshPage()', 5000);
+}

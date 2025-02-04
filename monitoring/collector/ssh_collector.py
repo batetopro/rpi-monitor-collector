@@ -138,7 +138,13 @@ class SSHCollector:
             cpu_temperature=data['cpu_temperature'],
             disk_space_available=data['disk_space_available'],
             disk_space_used=data['disk_space_used'],
+            disk_io_read_bytes=data['disk_io_read_bytes'],
+            disk_io_write_bytes=data['disk_io_write_bytes'],
+            net_io_bytes_recv=data['net_io_bytes_recv'],
+            net_io_bytes_sent=data['net_io_bytes_sent'],
             used_ram=data['ram'],
+            used_swap=data['swap_used'],
+            total_swap=data['swap_total'],
             current_date=datetime.datetime.fromtimestamp(
                 int(data['current_date']),
                 tz=datetime.timezone.utc

@@ -11,11 +11,17 @@ class DeviceModel(models.Model):
     status = models.CharField(max_length=60)
     message = models.TextField(null=True)
     used_ram = models.PositiveBigIntegerField(null=True)
+    used_swap = models.PositiveBigIntegerField(null=True)
+    total_swap = models.PositiveBigIntegerField(null=True)
     cpu_frequency = models.FloatField(null=True)
     cpu_temperature = models.PositiveBigIntegerField(null=True)
     cpu_usage = models.PositiveSmallIntegerField(null=True)
     disk_space_available = models.PositiveBigIntegerField(null=True)
     disk_space_used = models.PositiveBigIntegerField(null=True)
+    disk_io_read_bytes = models.PositiveBigIntegerField(null=True)
+    disk_io_write_bytes = models.PositiveIntegerField(null=True)
+    net_io_bytes_recv = models.PositiveBigIntegerField(null=True)
+    net_io_bytes_sent = models.PositiveIntegerField(null=True)
     last_seen = models.DateTimeField(null=True)
 
     def __str__(self):
@@ -110,8 +116,14 @@ class DeviceUsageModel(models.Model):
     cpu_temperature = models.PositiveBigIntegerField(null=True)
     cpu_usage = models.PositiveBigIntegerField(null=False)
     used_ram = models.PositiveBigIntegerField(null=False)
+    used_swap = models.PositiveBigIntegerField(null=True)
+    total_swap = models.PositiveBigIntegerField(null=True)
     disk_space_available = models.PositiveBigIntegerField(null=False)
     disk_space_used = models.PositiveBigIntegerField(null=False)
+    disk_io_read_bytes = models.PositiveBigIntegerField(null=True)
+    disk_io_write_bytes = models.PositiveIntegerField(null=True)
+    net_io_bytes_recv = models.PositiveBigIntegerField(null=True)
+    net_io_bytes_sent = models.PositiveIntegerField(null=True)
     current_date = models.DateTimeField(null=False)
     time_saved = models.DateTimeField(
         null=False, auto_now_add=True, db_index=True
