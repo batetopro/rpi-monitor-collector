@@ -73,8 +73,8 @@ class MonitoringDiagram:
         ax[1].axhline(70, color='y', linestyle='--', linewidth=0.5)
 
         ax[2].plot(x, used_ram, color='black')
-        ax[2].set_title('Used RAM', fontsize=8)
-        # ax[2].set_ylim(-5, 105)
+        ax[2].set_title('Used RAM %', fontsize=8)
+        ax[2].set_ylim(-5, 105)
         ax[2].set_xlim(x[0], x[-1])
         ax[2].axhline(85, color='r', linestyle='--', linewidth=0.5)
         ax[2].axhline(70, color='y', linestyle='--', linewidth=0.5)

@@ -44,9 +44,7 @@ class DeviceAdminModel(admin.ModelAdmin):
         "device_ram",
         "device_cpu",
         "device_cpu_temperature",
-        "device_cpu_frequency",
         "device_disk_space",
-        "device_last_seen",
         "device_actions",
     ]
 
@@ -183,7 +181,7 @@ class DeviceAdminModel(admin.ModelAdmin):
 
         return format_html(
             f'''<span class="badge bg-light">
-                {cpu_frequency} / {max_cpu_frequency} GHz
+                {cpu_frequency} / {max_cpu_frequency} MHz
             </span>
             '''
         )
@@ -211,8 +209,8 @@ class DeviceAdminModel(admin.ModelAdmin):
             else:
                 badge_class = 'bg-secondary'
 
-            show_used_disk_space = round(used_disk_space / (1024 * 1024), 2)
-            show_total_disk_space = round(total_disk_space / (1024 * 1024), 2)
+            show_used_disk_space = round(used_disk_space / (1024 * 1024 * 1024), 2)
+            show_total_disk_space = round(total_disk_space / (1024 * 1024 * 1024), 2)
             return format_html(
                 f'''<span class="badge {badge_class}">
                     {show_used_disk_space} / {show_total_disk_space} GBi
@@ -266,12 +264,12 @@ class DeviceAdminModel(admin.ModelAdmin):
     @admin.display(description="Used RAM", ordering='used_ram')
     def device_ram(self, obj):
         if obj.used_ram is not None:
-            used_ram = obj.used_ram
+            used_ram = round(obj.used_ram / (1024 * 1024), 2)
         else:
             used_ram = '-'
 
         try:
-            total_ram = obj.host_info.total_ram
+            total_ram = round(obj.host_info.total_ram / (1024 * 1024), 2)
         except HostInfoModel.DoesNotExist:
             total_ram = '-'
 
