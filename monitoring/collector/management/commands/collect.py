@@ -1,11 +1,13 @@
+import datetime
 import time
 
 
 from django.core.management.base import BaseCommand
+from django.utils.timezone import now
 
 
 from collector.ssh_collector import SSHCollector
-from core.models import DeviceModel
+from core.models import DeviceModel, DeviceUsageModel
 
 
 class Command(BaseCommand):
@@ -32,4 +34,11 @@ class Command(BaseCommand):
             collectors[device.id].run()
 
         while True:
+            DeviceUsageModel.objects.\
+                filter(time_saved__lt=now() - datetime.timedelta(days=2)).\
+                delete()
+
             time.sleep(10)
+
+            # Here we need to stop deleted configrations
+            # Here we nned to add created configurations
