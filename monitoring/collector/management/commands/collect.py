@@ -33,19 +33,32 @@ class Command(BaseCommand):
             collectors[device.id] = self.get_device_collector(device)
             collectors[device.id].run()
 
-        should_stop = False
-
-        while not should_stop:
-            DeviceUsageModel.objects.\
-                filter(time_saved__lt=now() - datetime.timedelta(days=2)).\
-                delete()
-
+        while True:
             try:
+                DeviceUsageModel.objects.\
+                    filter(time_saved__lt=now() - datetime.timedelta(days=2)).\
+                    delete()
+
                 time.sleep(10)
+
+                deleted_devices = set(collectors.keys())
+                new_devices = []
+
+                for device in self.get_devices():
+                    if device.id not in collectors:
+                        new_devices.append(device)
+                    elif device.id in deleted_devices:
+                        deleted_devices.remove(device.id)
+
+                for device in new_devices:
+                    collectors[device.id] = self.get_device_collector(device)
+                    collectors[device.id].run()
+
+                for device_id in deleted_devices:
+                    collectors[device_id].stop()
+                    del collectors[device_id]
+
             except KeyboardInterrupt:
-                should_stop = True
                 for collector in collectors.values():
                     collector.stop()
-
-            # Here we need to stop deleted configrations
-            # Here we nned to add created configurations
+                break
