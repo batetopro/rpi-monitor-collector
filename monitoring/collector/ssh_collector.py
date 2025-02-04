@@ -43,7 +43,7 @@ class SSHCollector:
         self._should_stop = False
 
     def collect(self):
-        while True:
+        while not self._should_stop:
             try:
                 conf = self.get_ssh_conf()
             except Exception as ex:
@@ -77,7 +77,7 @@ class SSHCollector:
                     self.handle_error(ex.__repr__(), 60)
                     continue
 
-                while True:
+                while not self._should_stop:
                     try:
                         if not self.collect_usage(client):
                             time.sleep(60)
@@ -86,7 +86,8 @@ class SSHCollector:
                         self.handle_error(ex.__repr__(), 60)
                         break
 
-                    time.sleep(5)
+                    if not self._should_stop:
+                        time.sleep(5)
 
     def collect_host_info(self, client: SSHClient):
         _, stdout, stderr = client.exec_command(
@@ -182,3 +183,6 @@ class SSHCollector:
     def run(self):
         thread = threading.Thread(target=self.collect, daemon=True)
         thread.start()
+
+    def stop(self):
+        self._should_stop = True
