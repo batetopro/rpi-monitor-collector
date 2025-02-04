@@ -30,14 +30,13 @@ class SSHKeyAdminModel(admin.ModelAdmin):
 
 class DeviceAdminModel(admin.ModelAdmin):
     class Media:
-        js = (
-            "js/auto_reload.js",
-        )
         css = {
              'all': ('css/admin-extra.css',)
         }
 
     change_form_template = 'admin/device_change_form.html'
+    change_list_template = "admin/device_change_list.html"
+
     list_display = [
         "id",
         "device_hostname",
@@ -56,9 +55,6 @@ class DeviceAdminModel(admin.ModelAdmin):
         return ("id", )
 
     def has_add_permission(self, request, obj=None):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
         return False
 
     fieldsets = [
@@ -145,6 +141,12 @@ class DeviceAdminModel(admin.ModelAdmin):
     )
 
     search_fields = ("host_info__hostname", )
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
 
     @admin.display(description="Actions")
     def device_actions(self, obj):
@@ -456,7 +458,10 @@ class DeviceAdminModel(admin.ModelAdmin):
 
     @admin.display(description="Up for", ordering='up_since')
     def up_for(self, obj):
-        return obj.last_seen - obj.host_info.up_since
+        try:
+            return obj.last_seen - obj.host_info.up_since
+        except Exception:
+            return 'N/A'
 
     @admin.display(description="Up since", ordering='up_since')
     def up_since(self, obj):
@@ -501,6 +506,13 @@ class SSHConfigruationAdminModel(admin.ModelAdmin):
 
     def get_ordering(self, request):
         return ("hostname", )
+
+    def has_delete_permission(self, request, obj=None):
+        if obj:
+            path = f"{obj._meta.app_label}/{obj._meta.model_name}"
+            if path in request.path:
+                return False
+        return True
 
     @admin.display(description="Actions")
     def config_actions(self, obj):
