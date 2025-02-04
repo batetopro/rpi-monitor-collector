@@ -64,9 +64,10 @@ class SSHCollector:
                     self.handle_error(ex.__repr__(), 60)
                     continue
 
-                self.device.status = 'connected'
-                self.device.message = None
-                self.device.save()
+                DeviceModel.objects.filter(id=self.device.id).update(
+                    message=None,
+                    status='connected'
+                )
 
                 try:
                     if not self.collect_host_info(client):
@@ -154,6 +155,8 @@ class SSHCollector:
         return True
 
     def get_ssh_conf(self):
+        self.device.ssh_conf.refresh_from_db()
+
         rendered: str = self.ssh_conf_template.render(
             Context({
                 'hostname': self.device.ssh_conf.hostname,
@@ -168,9 +171,10 @@ class SSHCollector:
             lookup(self.device.ssh_conf.hostname)
 
     def handle_error(self, message, sleep_interval=None):
-        self.device.message = message
-        self.device.status = 'disconnected'
-        self.device.save()
+        DeviceModel.objects.filter(id=self.device.id).update(
+            message=message,
+            status='disconnected'
+        )
 
         if sleep_interval is not None:
             time.sleep(sleep_interval)
