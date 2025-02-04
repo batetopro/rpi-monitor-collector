@@ -41,11 +41,11 @@ class MonitoringDiagram:
                     new_ios.append(math.log(dio, 10))
                 else:
                     new_ios.append(dio)
-                
+
             current_io = ios[k]
 
         return new_x, new_ios
-    
+
     def get_queryset(self):
         return DeviceUsageModel.objects.filter(
                 device_id=self.device_id,
@@ -175,7 +175,7 @@ class MonitoringDiagram:
 
         fig.autofmt_xdate()
         imgdata = StringIO()
-        
+
         fig.set_size_inches(10, 18)
         fig.tight_layout()
         fig.savefig(imgdata, format='svg')
