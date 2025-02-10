@@ -92,7 +92,9 @@ if os.getenv('DB_BACKEND') == 'sqlite3':
 elif os.getenv('DB_BACKEND') == 'mysql':
     DATABASES['default'] = {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': BASE_DIR / 'my.ini',
+        "OPTIONS": {
+            "read_default_file": str(BASE_DIR / 'my.ini'),
+        },
     }
 
 
