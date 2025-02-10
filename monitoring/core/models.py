@@ -19,9 +19,9 @@ class DeviceModel(models.Model):
     disk_space_available = models.PositiveBigIntegerField(null=True)
     disk_space_used = models.PositiveBigIntegerField(null=True)
     disk_io_read_bytes = models.PositiveBigIntegerField(null=True)
-    disk_io_write_bytes = models.PositiveIntegerField(null=True)
+    disk_io_write_bytes = models.PositiveBigIntegerField(null=True)
     net_io_bytes_recv = models.PositiveBigIntegerField(null=True)
-    net_io_bytes_sent = models.PositiveIntegerField(null=True)
+    net_io_bytes_sent = models.PositiveBigIntegerField(null=True)
     last_seen = models.DateTimeField(null=True)
 
     def __str__(self):
