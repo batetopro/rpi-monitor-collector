@@ -178,7 +178,7 @@ class MonitoringDiagram:
 
         fig.set_size_inches(10, 18)
         fig.tight_layout()
-        fig.savefig(imgdata, format='svg')
+        fig.savefig(imgdata, format='png')
         imgdata.seek(0)
         data = imgdata.getvalue()
 
