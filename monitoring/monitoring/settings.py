@@ -89,6 +89,11 @@ if os.getenv('DB_BACKEND') == 'sqlite3':
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.getenv('DB_NAME'),
     }
+elif os.getenv('DB_BACKEND') == 'mysql':
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': BASE_DIR / 'my.ini',
+    }
 
 
 # Password validation

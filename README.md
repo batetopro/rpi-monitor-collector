@@ -46,8 +46,12 @@ The supported keys are:
 * `HOSTNAME` - Address, from which the collector will be accessed
 * `SECRET_KEY` - Secret key, which is used by Django.
 * `STATIC_ROOT` - Where to keep the served static files.
-* `DB_BACKEND` - Which engine and configuration options tp use for storing the information. Suppored - `sqlite3`.
+* `DB_BACKEND` - Which engine and configuration options tp use for storing the information. Suppored - `sqlite3`, `mysql`.
 * `DB_NAME` - path to the sqlite database.
+
+If you want to use mySQL or mariaDB for the database connection, then copy `my.ini.template` as `my.ini`.
+Fill the connection options, see the MySQL documentation for `mysql_options()`.
+
 
 Collect the static files
 ```
@@ -129,9 +133,9 @@ server {
 }
 ```
 
-Restart Nginx
+Reload Nginx configuration
 ```
-sudo systemctl restart nginx
+sudo systemctl reload nginx
 ```
 
 Login as rpi-collector and generate a SSH pair.
