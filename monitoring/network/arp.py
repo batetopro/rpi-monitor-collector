@@ -56,14 +56,6 @@ class ArpCollector:
             key = '{}@{}'.format(record['address'], record['interface'])
 
             if key in old_neighbors:
-                if old_neighbors[key].physical_address != \
-                        record['physical_address']:
-                    old_neighbors[key].physical_address = \
-                        record['physical_address']
-                    old_neighbors[key].type = record['type']
-                    old_neighbors[key].mask = record['mask']
-                    old_neighbors[key].save()
-
                 del old_neighbors[key]
                 continue
 
