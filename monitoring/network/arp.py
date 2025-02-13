@@ -21,12 +21,18 @@ class ArpCollector:
 
         for network in settings.SCAN_NETWORKS:
             for ip in ipaddress.IPv4Network(network):
+                if ip.is_multicast:
+                    continue
+
                 ip_buckets[ip_index % number_of_ip_buckets].append(str(ip))
                 ip_index += 1
 
         for k in range(number_of_ip_buckets):
             ping_threads.append(
-                threading.Thread(target=ping_ip_addresses, args=(ip_buckets[k]))
+                threading.Thread(
+                    target=ping_ip_addresses,
+                    args=(ip_buckets[k])
+                )
             )
 
         for k in range(number_of_ip_buckets):
