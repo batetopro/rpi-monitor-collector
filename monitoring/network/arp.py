@@ -57,18 +57,27 @@ class ArpCollector:
 
             if key in old_neighbors:
                 del old_neighbors[key]
-                continue
 
-            new_neighbors.append(record)
+            record['status'] = 'connected'
+            new_neighbors.append(NeighbourModel(**record))
 
-        for neighbor in new_neighbors:
-            NeighbourModel.objects.create(**neighbor)
+        NeighbourModel.objects.bulk_create(
+            new_neighbors,
+            update_conflicts=True,
+            update_fields=["status", "mask", "physical_address", "type"],
+            unique_fields=["address", "interface"],
+        )
 
         NeighbourModel.objects.filter(
             pk__in=[
                 n.pk for n in old_neighbors.values()
             ]
-        ).delete()
+        ).update(
+            status='disconnected',
+            mask=None,
+            physical_address=None,
+            type=None
+        )
 
     def collect(self):
         self.make_pings()
