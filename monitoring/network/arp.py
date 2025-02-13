@@ -141,8 +141,8 @@ def collect_arp_linux():
                 'interface': parts[4],
                 'mask': parts[3],
                 'address': parts[0],
-                'physical_address': parts[1],
-                'type': parts[2],
+                'physical_address': parts[2],
+                'type': parts[1],
             }
 
         result.append(record)
