@@ -20,9 +20,10 @@ class ArpCollector:
         for k in range(number_of_ip_buckets):
             ip_buckets.append(list())
 
-        for network in settings.SCAN_NETWORKS:
-            for ip in ipaddress.IPv4Network(network):
-                if ip.is_multicast:
+        for network_address in settings.SCAN_NETWORKS:
+            network = ipaddress.IPv4Network(network_address)
+            for ip in network:
+                if ip.is_multicast or ip == network.broadcast_address:
                     continue
 
                 ip_buckets[ip_index % number_of_ip_buckets].append(str(ip))
@@ -144,15 +145,7 @@ def collect_arp_linux():
             continue
 
         parts = line.split()
-        if len(parts) == 3:
-            record = {
-                'interface': parts[2],
-                'mask': None,
-                'address': parts[0],
-                'physical_address': None,
-                'type': None,
-            }
-        elif len(parts) == 5:
+        if len(parts) == 5:
             record = {
                 'interface': parts[4],
                 'mask': parts[3],
@@ -160,8 +153,7 @@ def collect_arp_linux():
                 'physical_address': parts[2],
                 'type': parts[1],
             }
-
-        result.append(record)
+            result.append(record)
 
     return result
 
