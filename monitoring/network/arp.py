@@ -1,5 +1,6 @@
 import ipaddress
 import os
+import subprocess
 import threading
 
 
@@ -125,7 +126,16 @@ def collect_arp_windows():
 
 
 def collect_arp_linux():
-    data = os.popen('arp -e').read()
+    command = "arp -e"
+    process = subprocess.Popen(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=None,
+        shell=True
+    )
+
+    data = process.communicate()[0]
+
     result = []
     for line in data.splitlines():
         if not line.strip():
