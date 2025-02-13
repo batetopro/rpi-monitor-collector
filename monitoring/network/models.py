@@ -14,3 +14,12 @@ class NeighbourModel(models.Model):
 
     def __str__(self):
         return "{}@{}".format(self.address, self.interface)
+
+
+class DnsRecordModel(models.Model):
+    class Meta:
+        verbose_name = "DNS Record"
+        verbose_name_plural = "DNS Records"
+
+    address = models.CharField(max_length=64, null=False)
+    domain = models.CharField(max_length=255, null=False)
