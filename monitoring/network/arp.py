@@ -134,7 +134,7 @@ def collect_arp_linux():
         shell=True
     )
 
-    data = process.communicate()[0]
+    data = process.communicate()[0].decode()
 
     result = []
     for line in data.splitlines():
