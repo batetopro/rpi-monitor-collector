@@ -30,5 +30,6 @@ else:
 
 urlpatterns += [
     path('core/', include('core.urls')),
+    path('network/', include('network.urls')),
     path('', admin.site.urls),
 ]

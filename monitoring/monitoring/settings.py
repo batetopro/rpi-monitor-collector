@@ -46,6 +46,7 @@ INSTALLED_APPS = [
 
     'core',
     'collector',
+    'network',
 ]
 
 MIDDLEWARE = [
@@ -139,3 +140,6 @@ STATIC_ROOT = os.getenv('STATIC_ROOT')
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+SCAN_NETWORKS = os.getenv('SCAN_NETWORKS').split('|')
