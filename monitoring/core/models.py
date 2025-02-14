@@ -22,6 +22,8 @@ class DeviceModel(models.Model):
     disk_io_write_bytes = models.PositiveBigIntegerField(null=True)
     net_io_bytes_recv = models.PositiveBigIntegerField(null=True)
     net_io_bytes_sent = models.PositiveBigIntegerField(null=True)
+    up_since = models.DateTimeField(null=True)
+    time_on_host = models.DateTimeField(null=True)
     last_seen = models.DateTimeField(null=True)
 
     def __str__(self):
@@ -97,7 +99,6 @@ class HostInfoModel(models.Model):
     machine = models.CharField(max_length=60, null=False)
     processor = models.CharField(max_length=60, null=False)
     platform = models.TextField(null=False)
-    up_since = models.DateTimeField(null=False)
     max_cpu_frequency = models.FloatField(null=True)
     number_of_cpus = models.PositiveBigIntegerField(null=False)
     total_ram = models.PositiveBigIntegerField(null=False)

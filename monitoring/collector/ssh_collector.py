@@ -174,7 +174,21 @@ class SSHCollector:
     def handle_error(self, message, sleep_interval=None):
         DeviceModel.objects.filter(id=self.device.id).update(
             message=message,
-            status='disconnected'
+            status='disconnected',
+            used_ram=None,
+            used_swap=None,
+            total_swap=None,
+            cpu_frequency=None,
+            cpu_temperature=None,
+            cpu_usage=None,
+            disk_space_available=None,
+            disk_space_used=None,
+            disk_io_read_bytes=None,
+            disk_io_write_bytes=None,
+            net_io_bytes_recv=None,
+            net_io_bytes_sent=None,
+            time_on_host=None,
+            up_since=None
         )
 
         if sleep_interval is not None:

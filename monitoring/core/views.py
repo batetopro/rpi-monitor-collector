@@ -34,31 +34,34 @@ def device_info(request, device_id):
         'total_swap': device.total_swap,
     }
 
+    if device.time_on_host:
+        result['time_on_host'] = device.time_on_host.timestamp()
+    else:
+        result['time_on_host'] = None
+
     if device.last_seen:
         result['last_seen'] = device.last_seen.timestamp()
     else:
         result['last_seen'] = None
 
+    if device.up_since:
+        result['up_since'] = device.up_since.timestamp()
+        if result['last_seen']:
+            result['up_for'] = \
+                round((device.last_seen - device.up_since).total_seconds())
+        else:
+            result['up_for'] = None
+    else:
+        result['up_since'] = None
+        result['up_for'] = None
+
     try:
         host_info = device.host_info
         result['hostname'] = host_info.hostname
         result['total_ram'] = host_info.total_ram
-
-        if host_info.up_since:
-            result['up_since'] = host_info.up_since.timestamp()
-            if result['last_seen']:
-                result['up_for'] = \
-                    (device.last_seen - host_info.up_since).total_seconds()
-            else:
-                result['up_for'] = None
-        else:
-            result['up_for'] = None
-
     except HostInfoModel.DoesNotExist:
         result['hostname'] = device.ssh_conf.hostname
         result['total_ram'] = None
-        result['up_since'] = None
-        result['up_for'] = None
 
     if device.disk_space_available is not None and \
             device.disk_space_used is not None:

@@ -24,6 +24,7 @@ var device_details = {
             device_details.show_swap_memory(resp.used_swap, resp.total_swap)
             device_details.show_used_ram(resp.used_ram, resp.total_ram);
             device_details.show_last_seen(resp.last_seen);
+            device_details.show_time_on_host(resp.time_on_host);
             device_details.show_last_boot(resp.up_since);
             device_details.show_up_for(resp.up_for);
             device_details.show_error_message(resp.error_message);
@@ -164,7 +165,7 @@ var device_details = {
     show_last_seen: function(last_seen){
         if (last_seen !== null){
             $('#last-seen').text(
-                moment.unix(last_seen).format('YYYY-MM-DD HH:MM:ss')
+                moment.unix(last_seen).fromNow()
             );
         } else {
             $('#last-seen').text('--');
@@ -221,6 +222,15 @@ var device_details = {
             );
         } else {
             $('#total-swap').text('--');
+        }
+    },
+    show_time_on_host: function(time_on_host){
+        if (time_on_host !== null){
+            $('#time-on-host').text(
+                moment.unix(time_on_host).format('YYYY-MM-DD HH:MM:ss')
+            );
+        } else {
+            $('#time-on-host').text('--');
         }
     },
     show_up_for: function(up_for){

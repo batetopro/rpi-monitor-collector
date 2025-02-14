@@ -1,3 +1,6 @@
+from django.utils.timezone import now
+
+
 from core.models import DeviceModel, DeviceUsageModel, HostInfoModel
 
 
@@ -21,6 +24,11 @@ class HostInfo:
     def update_info(self, hostname, model, os_name, system, machine, processor,
                     platform, up_since, max_cpu_frequence, total_ram,
                     number_of_cpus):
+
+        DeviceModel.objects.filter(id=self.device.id).update(
+            up_since=up_since
+        )
+
         entry = HostInfoModel.objects.filter(device_id=self.device.id).first()
 
         if not entry:
@@ -33,7 +41,6 @@ class HostInfo:
         entry.machine = machine
         entry.processor = processor
         entry.platform = platform
-        entry.up_since = up_since
         entry.max_cpu_frequency = max_cpu_frequence
         entry.total_ram = total_ram
         entry.number_of_cpus = number_of_cpus
@@ -62,7 +69,8 @@ class HostInfo:
             used_ram=used_ram,
             used_swap=used_swap,
             total_swap=total_swap,
-            last_seen=current_date,
+            time_on_host=current_date,
+            last_seen=now(),
         )
 
         DeviceUsageModel.objects.create(
