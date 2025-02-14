@@ -122,9 +122,9 @@ class DeviceUsageModel(models.Model):
     disk_space_available = models.PositiveBigIntegerField(null=False)
     disk_space_used = models.PositiveBigIntegerField(null=False)
     disk_io_read_bytes = models.PositiveBigIntegerField(null=True)
-    disk_io_write_bytes = models.PositiveIntegerField(null=True)
+    disk_io_write_bytes = models.PositiveBigIntegerField(null=True)
     net_io_bytes_recv = models.PositiveBigIntegerField(null=True)
-    net_io_bytes_sent = models.PositiveIntegerField(null=True)
+    net_io_bytes_sent = models.PositiveBigIntegerField(null=True)
     current_date = models.DateTimeField(null=False)
     time_saved = models.DateTimeField(
         null=False, auto_now_add=True, db_index=True
