@@ -29,12 +29,54 @@ class SSHKeyAdminModel(admin.ModelAdmin):
 
 
 class DeviceAdminModel(admin.ModelAdmin):
-    class Media:
-        css = {
-             'all': ('css/admin-extra.css',)
-        }
-
     change_form_template = 'admin/device_change_form.html'
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+
+        device = DeviceModel.objects.get(pk=object_id)
+
+        try:
+            host_info = device.host_info
+            extra_context['hostname'] = host_info.hostname
+            extra_context['platform'] = {
+                'model': host_info.model,
+                'os_name': host_info.os_name,
+                'system': host_info.system,
+                'machine': host_info.machine,
+                'processor': host_info.processor,
+                'platform': host_info.platform,
+            }
+            extra_context['number_of_cpus'] = host_info.number_of_cpus
+            extra_context['max_cpu_frequency'] = \
+                round(host_info.max_cpu_frequency)
+            extra_context['total_ram'] = \
+                round(host_info.total_ram / (1024 * 1024), 2)
+
+        except HostInfoModel.DoesNotExist:
+            extra_context['hostname'] = device.ssh_conf.hostname
+            extra_context['platform'] = None
+            extra_context['number_of_cpus'] = None
+            extra_context['max_cpu_frequency'] = None
+            extra_context['total_ram'] = None
+
+        extra_context['device_id'] = object_id
+        extra_context['status'] = device.status
+
+        if device.status == 'connected':
+            extra_context['status_class'] = 'bg-success'
+        elif device.status == 'disconnected':
+            extra_context['status_class'] = 'bg-danger'
+        else:
+            extra_context['status_class'] = 'bg-secondary'
+
+        return super(DeviceAdminModel, self).change_view(
+            request,
+            object_id,
+            form_url=form_url,
+            extra_context=extra_context
+        )
+
     change_list_template = "admin/device_change_list.html"
 
     list_display = [
@@ -154,9 +196,6 @@ class DeviceAdminModel(admin.ModelAdmin):
             '<a href="' +
             reverse('admin:core_devicemodel_change', args=[obj.id]) +
             '">Details</a>',
-            '<a href="' +
-            reverse('core:monitoring_diagram', args=[obj.id]) +
-            '" target="_blank">Plots</a>',
         ]
 
         return format_html('&nbsp;|&nbsp;'.join(actions))

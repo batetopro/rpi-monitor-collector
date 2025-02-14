@@ -1,22 +1,286 @@
-{% extends "admin/change_form.html" %}
+{% extends "admin/custom_change_form.html" %}
 
 
-{% block object-tools-items %}
-    <li>    
-        <a href="{% url 'core:monitoring_diagram' original.id %}" target="_balnk">Usage plots</a>
-    </li>
-    {% if original.ssh_conf.monitoring_url %}
-        <li>
-            <a href="{{ original.ssh_conf.monitoring_url }}" target="_balnk">Host monitoring</a>
-        </li>
-    {% endif %}
-    <li>
-        <a href="ssh://{{ original.ssh_conf.username }}@{{ original.ssh_conf.hostname }}:{{ original.ssh_conf.port }}" target="_balnk">SSH Tunnel</a>
-    </li>
-    <li>
-        <a href="{% url 'admin:core_sshconfigurationmodel_change' original.id %}" target="_balnk">SSH Configuration</a>
-    </li>
+{% load i18n static %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href="{% static "css/custom.css" %}">
 {% endblock %}
 
-{% block submit_buttons_bottom %}
+
+{% block content %}
+    <div class="clearfix">
+        <div class="pull-left">
+            <strong class="d-inline-block" id="hostname">{{ hostname }}</strong>
+            <span class="badge {{ status_class }} mb-2" id="device-status">{{ status }}</span>
+        </div>
+        <div class="pull-right">
+            <a href="{% url 'admin:core_sshconfigurationmodel_change' original.id %}" target="_balnk">SSH Configuration</a>
+        </div>
+    </div>
+    <div class="alert alert-danger" id="error-message" style="display: none;"></div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card text-white mb-3">
+                <div class="card-header">
+                    Platform
+                </div>
+                <div class="card-body p-0">
+                    {% if platform %}
+                        <table class="table m-0">
+                            <tr>
+                                <th width="140">Model</th>
+                                <td>{{ platform.model }}</td>
+                            </tr>
+                            <tr>
+                                <th>OS name</th>
+                                <td>{{ platform.os_name }}</td>
+                            </tr>
+                            <tr>
+                                <th>System</th>
+                                <td>{{ platform.system }}</td>
+                            </tr>
+                            <tr>
+                                <th>Machine</th>
+                                <td>{{ platform.machine }}</td>
+                            </tr>
+                            <tr>
+                                <th>Processor</th>
+                                <td>{{ platform.processor }}</td>
+                            </tr>
+                            <tr>
+                                <th>Platform</th>
+                                <td>{{ platform.platform }}</td>
+                            </tr>
+                        </table>
+                    {% else %}
+                        <div class="alert bg-info mb-0">
+                            Platform information is not collected yet.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card text-white mb-3">
+                <div class="card-header">
+                    Clock
+                </div>
+                <div class="card-body p-0">
+                    <table class="table m-0">
+                        <tr>
+                            <th width="140">Time on host</th>
+                            <td id="last-seen">--</td>
+                        </tr>
+                        <tr>
+                            <th>Last boot on</th>
+                            <td id="up-since">--</td>
+                        </tr>
+                        <tr>
+                            <th>Up for</th>
+                            <td id="up-for">--</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card text-white mb-3">
+        <div class="card-header">CPU Performance</div>
+        <div class="card-body p-0">
+            <div class="progress mb-0"  style="display: none;">
+                <div class="progress-bar bg-primary" id="cpu-progresbar" role="progressbar"></div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <table class="table m-0">
+                        <tr>
+                            <th width="140">Usage</th>
+                            <td id="cpu-usage">
+                                --
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Temperature</th>
+                            <td id="cpu-temperature">
+                                --
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Frequency</th>
+                            <td id="cpu-frequency">
+                                --
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Max frequency</th>
+                            <td>
+                                {% if max_cpu_frequency %}
+                                    {{ max_cpu_frequency }} MHz
+                                {% else %}
+                                    --
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Cores</th>
+                            <td>
+                                {% if number_of_cpus %}
+                                    {{ number_of_cpus }}
+                                {% else %}
+                                    --
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-9" id="cpu-performance">
+                    <string>Loading ...</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card text-white mb-3">
+        <div class="card-header">Memory Performance</div>
+        <div class="card-body p-0">
+            <div class="progress mb-0" style="display: none;">
+                <div class="progress-bar bg-primary" id="ram-progresbar" role="progressbar"></div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <table class="table m-0">
+                        <tr>
+                            <th width="140">Used RAM</th>
+                            <td id="used-ram">
+                                --
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Total RAM</th>
+                            <td>
+                                {% if total_ram %}
+                                    {{ total_ram }} MBi
+                                {% else %}
+                                    --
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Used swap</th>
+                            <td id="used-swap">
+                                --
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Total swap</th>
+                            <td id="total-swap">
+                                --
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-9" id="ram-performance">
+                    <strong>Loading ...</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card text-white mb-3">
+        <div class="card-header">Storage</div>
+        <div class="card-body p-0">
+            <div class="progress mb-0" style="display: none;">
+                <div class="progress-bar bg-primary" id="space-progresbar" role="progressbar"></div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <table class="table m-0">
+                        <tr>
+                            <th width="140">Used space</th>
+                            <td id="used-space">
+                                --
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Available space</th>
+                            <td id="available-space">
+                                --
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Total space</th>
+                            <td id="total-space">
+                                --
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Read</th>
+                            <td id="disk-io-read">
+                                --
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Write</th>
+                            <td  id="disk-io-write">
+                                --
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-9" id="disc-performance">
+                    <strong>Loading ...</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card text-white mb-3">
+        <div class="card-header">Network Performance</div>
+        <div class="card-body p-0">
+            <div class="row">
+                <div class="col-md-3">
+                    <table class="table m-0">
+                        <tr>
+                            <th width="140">Received</th>
+                            <td id="network-received">
+                                --
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Transmitted</th>
+                            <td id="network-sent">
+                                --
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-9" id="network-performance">
+                    <strong>Loading ...</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="//momentjs.com/downloads/moment.js"></script>
+    <script src="{% static "js/device_info.js" %}"></script>
+    <script>
+        $(function(){
+            device_details.url = "{% url 'core:device_info' device_id %}";
+            device_details.usage_url = "{% url 'core:device_usage' device_id %}";
+            device_details.render(true);
+
+            /*
+            data.datasets[0].data.push(100)
+            data.labels.push(8)
+            
+            data.datasets[0].data.push(50)
+            data.labels.push(9)
+
+            chart.update();
+            */
+        })
+    </script>
 {% endblock %}
+
+{% block content_title %}{% endblock %}
+{% block content_subtitle %}{% endblock %}

@@ -1,0 +1,176 @@
+{% load i18n static %}<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" dir="{{ LANGUAGE_BIDI|yesno:'rtl,ltr,auto' }}">
+    <head>
+        <title>{% block title %}{% endblock %}</title>
+        <link rel="stylesheet" href="{% block stylesheet %}//bootswatch.com/5/darkly/bootstrap.min.css{% endblock %}">
+        {% if not is_popup and is_nav_sidebar_enabled %}
+            <link rel="stylesheet" href="{% static "admin/css/nav_sidebar.css" %}">
+            <script src="{% static 'admin/js/nav_sidebar.js' %}" defer></script>
+        {% endif %}
+
+        <link rel="stylesheet" href="//bootswatch.com/_vendor/bootstrap-icons/font/bootstrap-icons.min.css">
+        <script src="//bootswatch.com/_vendor/bootstrap/dist/js/bootstrap.bundle.min.js" defer></script>
+
+        {% block extrastyle %}{% endblock %}
+        {% if LANGUAGE_BIDI %}<link rel="stylesheet" href="{% block stylesheet_rtl %}{% static "//bootswatch.com/5/darkly/bootstrap.rtl.min.css" %}{% endblock %}">{% endif %}
+        {% block extrahead %}{% endblock %}
+        {% block responsive %}
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link rel="stylesheet" href="{% static "admin/css/responsive.css" %}">
+            {% if LANGUAGE_BIDI %}<link rel="stylesheet" href="{% static "admin/css/responsive_rtl.css" %}">{% endif %}
+        {% endblock %}
+        {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE">{% endblock %}
+    </head>
+
+    <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}" data-admin-utc-offset="{% now "Z" %}">
+
+    {% if not is_popup %}
+        <!-- Header -->
+        {% block header %}
+            <div class="fixed-top">
+                <div class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+                    <div class="container">
+                        <a href="/" class="navbar-brand">RPi management</a>
+
+                        {% if available_apps %}
+                            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                                <span class="navbar-toggler-icon"></span>
+                            </button>
+                            <div class="collapse navbar-collapse" id="navbarResponsive">
+                                <ul class="navbar-nav">
+                        
+                                    {% for app in available_apps %}
+                                        {% if app.app_label != 'auth' %}
+                                            <li class="nav-item dropdown" data-bs-theme="light">
+                                                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" 
+                                                    title="{% blocktranslate with name=app.name %}Models in the {{ name }} application{% endblocktranslate %}"
+                                                    href="app.app_url" id="ddm-{{ app.name }}">
+                                                    {{ app.name }}
+                                                </a>
+                                            
+                                                <div class="dropdown-menu" aria-labelledby="ddm-{{ app.name }}">
+                                                {% for model in app.models %}
+                                                    {% if model.admin_url %}
+                                                        <a class="dropdown-item {% if model.admin_url in request.path|urlencode %} active{% endif %}" href="{{ model.admin_url }}">{{ model.name }}</a>
+                                                    {% else %}
+                                                        <span class="dropdown-item">{{ model.name }}</span>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <div>
+                                            </li>
+                                            
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% else %}
+                            {# <p>{% translate 'You don’t have permission to view or edit anything.' %}</p> #}
+                        {% endif %}
+                        <ul class="navbar-nav ms-md-auto">
+                            {% block usertools %}
+                                {% if has_permission %}
+                                <li class="nav-item dropdown" data-bs-theme="light">
+                                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="theme-menu" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme">
+                                    <i class="bi bi-person-circle"></i>
+                                    <span class="ms-2">
+                                        {% firstof user.get_short_name user.get_username %}
+                                    </span>
+                                    </a>
+                                    
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        {% if site_url %}
+                                            <li>
+                                                <a href="{{ site_url }}" class="dropdown-item">
+                                                    {% translate 'View site' %}
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                        {% if user.is_active and user.is_staff %}
+                                            {% url 'django-admindocs-docroot' as docsroot %}
+                                            {% if docsroot %}
+                                                <li>
+                                                    <a href="{{ docsroot }}"  class="dropdown-item">
+                                                        {% translate 'Documentation' %}
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                        {% endif %}
+                                        {% if user.has_usable_password %}
+                                            <li>
+                                                <a href="{% url 'admin:password_change' %}" class="dropdown-item">
+                                                    {% translate 'Change password' %}
+                                                </a>
+
+                                            </li>
+                                        {% endif %}
+                                        <li>
+                                            <form id="logout-form" method="post" action="{% url 'admin:logout' %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="dropdown-item d-flex align-items-center">
+                                                    {% translate 'Log out' %}
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </li>
+                                {% endif %}
+                            {% endblock %}
+                            {% block nav-global %}{% endblock %}
+                        </ul>
+                    </div>
+                </div>
+                {% block nav-breadcrumbs %}
+                    <div class="navbar bg-secondary" data-bs-theme="dark" id="breadcrumb-navbar">
+                        <div class="container">
+                            {% block breadcrumbs %}
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item">
+                                        <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+                                    </li>
+                                    {% if title %}
+                                        <li class="breadcrumb-item active">{{ title }}</li>
+                                    {% endif %}
+                                </ol>
+                            {% endblock %}
+                        </div>
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+        <!-- END Header -->
+    {% endif %}
+    <!-- Container -->
+    <div class="container"> 
+        <main tabindex="-1">
+            {% block messages %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-dismissible alert-warning {{ message.tags }}">
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            <p class="mb-0">
+                                {{ message|capfirst }}
+                            </p>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endblock messages %}
+
+
+
+            <!-- Content -->
+            {% block pretitle %}{% endblock %}
+            {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
+            {% block content_subtitle %}{% if subtitle %}<h2>{{ subtitle }}</h2>{% endif %}{% endblock %}
+            {% block content %}
+                {% block object-tools %}{% endblock %}
+                {{ content }}
+            {% endblock %}
+            {% block sidebar %}{% endblock %}
+        </main>
+    </div>
+
+    {% block footer %}
+    {% endblock %}
+</body>
+</html>

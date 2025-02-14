@@ -9,8 +9,13 @@ app_name = 'core'
 
 urlpatterns = [
     path(
-        "monitoring-diagram/<int:device_id>/",
-        core_views.monitoring_diagram,
-        name='monitoring_diagram'
+        "device/<int:device_id>/info/",
+        core_views.device_info,
+        name='device_info'
+    ),
+    path(
+        "device/<int:device_id>/usage/",
+        core_views.device_usage,
+        name='device_usage'
     ),
 ]
