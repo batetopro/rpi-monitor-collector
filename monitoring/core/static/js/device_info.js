@@ -708,7 +708,7 @@ var device_usage = {
         }
         var hours = ts.getHours()
         if (hours < 10){
-            hours = '0' + minutes;
+            hours = '0' + hours;
         }
         return hours + ':' + minutes;
     },
