@@ -26,6 +26,8 @@ class HostInfo:
                     number_of_cpus):
 
         DeviceModel.objects.filter(id=self.device.id).update(
+            message=None,
+            status='connected',
             up_since=up_since
         )
 

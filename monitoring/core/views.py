@@ -88,7 +88,7 @@ def device_info(request, device_id):
 
     if device.up_since:
         result['up_since'] = device.up_since.timestamp()
-        if result['last_seen']:
+        if device.time_on_host:
             result['up_for'] = \
                 round((device.time_on_host - device.up_since).total_seconds())
         else:

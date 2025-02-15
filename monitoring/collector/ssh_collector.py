@@ -64,11 +64,6 @@ class SSHCollector:
                     self.handle_error(ex.__repr__(), 60)
                     continue
 
-                DeviceModel.objects.filter(id=self.device.id).update(
-                    message=None,
-                    status='connected'
-                )
-
                 try:
                     if not self.collect_host_info(client):
                         time.sleep(60)
@@ -194,9 +189,16 @@ class SSHCollector:
         if sleep_interval is not None:
             time.sleep(sleep_interval)
 
+    def mark_disconnected(self):
+        self.handle_error(
+            message='Collector is not running.',
+            sleep_interval=None
+        )
+
     def run(self):
         thread = threading.Thread(target=self.collect, daemon=True)
         thread.start()
 
     def stop(self):
         self._should_stop = True
+        self.mark_disconnected()
