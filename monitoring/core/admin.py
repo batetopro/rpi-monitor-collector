@@ -99,7 +99,7 @@ class SSHConfigruationAdminModel(admin.ModelAdmin):
         (
             "Monitoring",
             {
-                "fields": ["monitoring_path", "monitoring_url"],
+                "fields": ["monitoring_path", ],
             },
         ),
     ]

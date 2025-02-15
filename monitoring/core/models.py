@@ -62,7 +62,6 @@ class SSHConfigurationModel(models.Model):
     hostname = models.CharField(max_length=255, null=False)
     port = models.IntegerField(null=False, default=22)
     username = models.CharField(max_length=255, null=False)
-    monitoring_url = models.CharField(max_length=2048, null=True, blank=True)
     monitoring_path = models.CharField(max_length=2048, null=False)
 
     def __str__(self):
