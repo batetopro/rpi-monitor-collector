@@ -54,8 +54,9 @@ class HostInfo:
         return self.entry
 
     def update_usage(self, cpu_usage, cpu_frequency, cpu_temperature,
-                     disk_space_available, disk_space_used, disk_io_read_bytes,
-                     disk_io_write_bytes, net_io_bytes_recv, net_io_bytes_sent,
+                     disk_space_available, disk_space_used, disk_space_total,
+                     disk_io_read_bytes, disk_io_write_bytes,
+                     net_io_bytes_recv, net_io_bytes_sent,
                      used_ram, used_swap, total_swap, current_date):
 
         DeviceModel.objects.filter(id=self.device.id).update(
@@ -63,6 +64,7 @@ class HostInfo:
             cpu_frequency=cpu_frequency,
             cpu_temperature=cpu_temperature,
             disk_space_available=disk_space_available,
+            disk_space_total=disk_space_total,
             disk_space_used=disk_space_used,
             disk_io_read_bytes=disk_io_read_bytes,
             disk_io_write_bytes=disk_io_write_bytes,

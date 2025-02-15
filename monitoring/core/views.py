@@ -31,15 +31,9 @@ def devices(request):
             'used_ram': device.used_ram,
             'cpu_usage': device.cpu_usage,
             'cpu_temperature': device.cpu_temperature,
+            'total_storage': device.disk_space_total,
             'used_storage': device.disk_space_used,
         }
-
-        if device.disk_space_available is not None and \
-                device.disk_space_used is not None:
-            entry['total_storage'] = \
-                device.disk_space_available + device.disk_space_used
-        else:
-            entry['total_storage'] = None
 
         try:
             entry['hostname'] = device.host_info.hostname
@@ -66,6 +60,7 @@ def device_info(request, device_id):
         'disk_io_read_bytes': device.disk_io_read_bytes,
         'disk_io_write_bytes': device.disk_io_write_bytes,
         'disk_space_available': device.disk_space_available,
+        'disk_space_total': device.disk_space_total,
         'disk_space_used': device.disk_space_used,
         'error_message': device.message,
         'network_io_received_bytes': device.net_io_bytes_recv,
@@ -103,13 +98,6 @@ def device_info(request, device_id):
     except HostInfoModel.DoesNotExist:
         result['hostname'] = device.ssh_conf.hostname
         result['total_ram'] = None
-
-    if device.disk_space_available is not None and \
-            device.disk_space_used is not None:
-        result['disk_space_total'] = \
-            device.disk_space_available + device.disk_space_used
-    else:
-        result['disk_space_total'] = None
 
     return JsonResponse(result, safe=False)
 
