@@ -174,7 +174,7 @@ var device_details = {
     show_last_boot: function(last_boot_on){
         if (last_boot_on !== null){
             $('#up-since').text(
-                moment.unix(last_boot_on).format('YYYY-MM-DD HH:MM:ss')
+                moment.unix(last_boot_on).format('YYYY-MM-DD HH:mm:ss')
             );
         } else {
             $('#up-since').text('--');
@@ -227,7 +227,7 @@ var device_details = {
     show_time_on_host: function(time_on_host){
         if (time_on_host !== null){
             $('#time-on-host').text(
-                moment.unix(time_on_host).format('YYYY-MM-DD HH:MM:ss')
+                moment.unix(time_on_host).format('YYYY-MM-DD HH:mm:ss')
             );
         } else {
             $('#time-on-host').text('--');
@@ -352,6 +352,10 @@ var device_usage = {
         });
     },
     build_cpu_chart: function(time_saved, cpu_usage, cpu_temperature){
+        if (time_saved.length < 1){
+            return;
+        }
+
         $('#cpu-performance').html('<div style="height: 206px"><canvas id="cpu-diagram"></canvas></div>');
 
         const data = {
@@ -443,7 +447,7 @@ var device_usage = {
         $('#disc-performance').html('<div style="height: 206px"><canvas id="disc-diagram"></canvas></div>');
 
         const data = {
-            labels: time_saved, // Array.from(time_saved).slice(1),
+            labels: Array.from(time_saved).slice(1),
             datasets: [
                 {
                     label: 'Read',
@@ -525,10 +529,14 @@ var device_usage = {
     },
     
     build_network_chart: function(time_saved, received, sent){
+        if (time_saved.length <= 1){
+            return;
+        }
+
         $('#network-performance').html('<div style="height: 206px"><canvas id="network-diagram"></canvas></div>');
 
         const data = {
-            labels: time_saved, // Array.from(time_saved).slice(1),
+            labels: Array.from(time_saved).slice(1),
             datasets: [
                 {
                     label: 'Received',
@@ -608,6 +616,10 @@ var device_usage = {
         device_usage.network_chart = new Chart(ctx, config);
     },
     build_ram_chart: function(time_saved, used_ram){
+        if (time_saved.length < 1){
+            return;
+        }
+
         $('#ram-performance').html('<div style="height: 206px"><canvas id="ram-diagram"></canvas></div>');
 
         const data = {
@@ -686,7 +698,7 @@ var device_usage = {
     },
     format_time_saved: function(value){
         if (!value){
-            console.log(value)
+            return;
         }
 
         var ts = new Date(value * 1000);
@@ -714,6 +726,10 @@ var device_usage = {
             lines = resp.split('\r\n');
 
         for(var i = 0; i < lines.length; i++){
+            if (!lines[i]){
+                continue;
+            }
+
             var columns = lines[i].split(',');
             result.time_saved.push(parseFloat(columns[0]));
             result.cpu_usage.push(parseFloat(columns[1]));
