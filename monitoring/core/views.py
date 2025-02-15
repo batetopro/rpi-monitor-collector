@@ -9,7 +9,6 @@ from django.http.response import HttpResponse, JsonResponse
 from django.utils.timezone import now
 
 
-from core.diagrams import MonitoringDiagram
 from core.models import DeviceModel, DeviceUsageModel, HostInfoModel
 
 
@@ -156,12 +155,3 @@ def device_usage(request, device_id):
             content=buf.getvalue().strip(),
             content_type='text/csv'
         )
-
-
-@staff_member_required
-def monitoring_diagram(request, device_id):
-    diagram = MonitoringDiagram(device_id)
-    return HttpResponse(
-        content=diagram.plot(),
-        content_type='image/svg+xml'
-    )

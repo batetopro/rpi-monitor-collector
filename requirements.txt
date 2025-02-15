@@ -1,6 +1,5 @@
 paramiko
 django
-matplotlib
 gunicorn
 python-dotenv
 mysqlclient

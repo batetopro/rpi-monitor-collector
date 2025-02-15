@@ -32,19 +32,6 @@ class DeviceModel(models.Model):
         except HostInfoModel.DoesNotExist:
             return str(self.ssh_conf)
 
-    def get_platform_info(self):
-        return '\n'.join(
-            [
-                f'Model: {self.host_info.model}',
-                f'OS: {self.host_info.os_name}',
-                f'System: {self.host_info.system}',
-                f'Machine: {self.host_info.machine}',
-                f'Processor: {self.host_info.processor}',
-                f'Number of CPUs: {self.host_info.number_of_cpus}',
-                f'Platform: {self.host_info.platform}',
-            ]
-        )
-
 
 class SSHKeyModel(models.Model):
     class Meta:
