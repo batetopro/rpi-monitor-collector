@@ -5,6 +5,7 @@ import threading
 
 
 from django.conf import settings
+from filelock import FileLock
 
 
 from network.dns import ReverseDnsResolver
@@ -90,14 +91,18 @@ class ArpCollector:
         )
 
     def collect(self):
-        self.make_pings()
+        path = settings.BASE_DIR / 'arp_collect.lock'
+        lock = FileLock(path)
 
-        if os.name == 'nt':
-            arp_records = collect_arp_windows()
-        else:
-            arp_records = collect_arp_linux()
+        with lock.acquire(timeout=0):
+            self.make_pings()
 
-        self.save_neighbors(arp_records)
+            if os.name == 'nt':
+                arp_records = collect_arp_windows()
+            else:
+                arp_records = collect_arp_linux()
+
+            self.save_neighbors(arp_records)
 
 
 def collect_arp_windows():
