@@ -191,7 +191,16 @@
         </div>
     </div>
     <div class="card text-white mb-3">
-        <div class="card-header">Storage</div>
+        <div class="card-header">
+            <div class="clearfix">
+                <div class="pull-left">
+                    Storage
+                </div>
+                <div class="pull-right">
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#partitions-modal">Partitions</a>
+                </div>
+            </div>
+        </div>
         <div class="card-body p-0">
             <div class="progress mb-0" style="display: none;">
                 <div class="progress-bar bg-primary" id="space-progresbar" role="progressbar"></div>
@@ -261,6 +270,22 @@
                     <strong>Loading ...</strong>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="modal" id="partitions-modal">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Storage partitions</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true"></span>
+              </button>
+            </div>
+            <div class="modal-body p-0" id="partitions">
+                <strong>Loading ...</strong>
+            </div>
+          </div>
         </div>
     </div>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>

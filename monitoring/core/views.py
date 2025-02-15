@@ -59,6 +59,7 @@ def device_info(request, device_id):
         'cpu_usage': device.cpu_usage,
         'disk_io_read_bytes': device.disk_io_read_bytes,
         'disk_io_write_bytes': device.disk_io_write_bytes,
+        'disk_partitions': device.disk_partitions,
         'disk_space_available': device.disk_space_available,
         'disk_space_total': device.disk_space_total,
         'disk_space_used': device.disk_space_used,

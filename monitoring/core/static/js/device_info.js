@@ -1,3 +1,39 @@
+function format_interval(ts){
+    var seconds_in_day = 24 * 60 * 60,
+        day_seconds = ts % seconds_in_day,
+        days = (ts - day_seconds) / seconds_in_day,
+        view = '';
+
+    if (days > 0){
+        view += days + ' days ';
+    }
+
+    var hour_seconds = day_seconds % 3600,
+        hours = (day_seconds - hour_seconds) / 3600;
+
+    if (hours < 10){
+        hours = '0' + hours;
+    }
+    view += hours + ':';
+
+    var minute_seconds = hour_seconds % 60,
+    minutes = (hour_seconds - minute_seconds) / 60;
+
+    if (minutes < 10){
+        minutes = '0' + minutes;
+    }
+    view += minutes + ':';
+
+    minute_seconds = Math.round(minute_seconds);
+
+    if (minute_seconds < 10){
+        minute_seconds = '0' + minute_seconds;
+    }
+    view += minute_seconds;
+
+    return view;
+};
+
 
 var device_details = {
     url: undefined,
@@ -5,7 +41,7 @@ var device_details = {
     total_ram: undefined,
     render: function(is_init){
         $.getJSON(device_details.url, {}, function(resp){
-            console.log(resp);
+            // console.log(resp);
             
             if (is_init) {
                 device_usage.build();
@@ -28,6 +64,7 @@ var device_details = {
             device_details.show_last_boot(resp.up_since);
             device_details.show_up_for(resp.up_for);
             device_details.show_error_message(resp.error_message);
+            device_details.show_disk_partitions(resp.disk_partitions);
 
             setTimeout(function(){
                 device_details.render(false);
@@ -104,6 +141,61 @@ var device_details = {
         } else {
             $('#disk-io-write').text('--')
         }
+    },
+    show_disk_partitions: function(partitions){
+        if (partitions === null){
+            $('#partitions').html('<div class="alert bg-info">Information about storge partitions is not collected yet.</div>');
+            return;
+        }
+
+        var view = '';
+        for (var i = 0; i < partitions.length ; i++){
+            var partition = partitions[i],
+                space_available = (partition.space_available / (1024 * 1024 * 1024)).toFixed(2) + ' GBi',
+                space_used = (partition.space_used / (1024 * 1024 * 1024)).toFixed(2) + ' GBi',
+                space_total = (partition.space_total / (1024 * 1024 * 1024)).toFixed(2) + ' GBi',
+                space_usage = ((partition.space_used / partition.space_available) * 100).toFixed(2),
+                space_badge = (space_usage >= 85) ? 'bg-danger' : (space_usage >= 70) ? 'bg-warning' : 'bg-primary',
+                io_read_bytes = (partition.io_read_bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GBi',
+                io_write_bytes = (partition.io_write_bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GBi';
+            
+            view += '<div class="container">';
+            view += '<h4>' + partition.device + '</h4>';
+            view += '<div class="clearfix">'
+            view += '<div class="pull-left">Mountpoint: <strong>' + partition.mountpoint + '</strong></div>';
+            view += '<div class="pull-right">Type: <strong>' + partition.fstype + '</strong></div>';
+            view += '</div>';
+            view += '<div class="progress mb-0">' + 
+                '<div class="progress-bar ' + space_badge + '" role="progressbar" aria-valuenow="' + space_usage + '" aria-valuemin="0" aria-valuemax="100" style="width: ' + space_usage + '%;"></div>' + 
+                '</div>';
+
+            view += '</div>';
+
+            view += '<div class="container"><div class="row align-items-start"><div class="col-md-6">';
+            view += 'Space';
+            view += '<table class="table mb-0">';
+            view += '<tr><th width="120">Available</th><td>' + space_available + '</td></tr>';
+            view += '<tr><th>Used</th><td>' + space_used + '</td></tr>';
+            view += '<tr><th>Total</th><td>' + space_total + '</td></tr>';
+            view += '</table>';
+            
+            view += '</div><div class="col-md-6">';
+            view += 'I/O';
+            view += '<table class="table mb-0">';
+            view += '<tr><th width="120">&nbsp;</th><th>Read</th><th>Write</th></tr>';
+            view += '<tr><th>Bytes</th><td>' + io_read_bytes + '</td><td>' + io_write_bytes + '</td></tr>';
+            view += '<tr><th>Count</th><td>' + partition.io_read_count + '</td><td>' + partition.io_write_count + '</td></tr>';
+            view += '<tr><th>Time</th><td>' + format_interval(partition.io_read_time / 1000) + '</td><td>' + format_interval(partition.io_write_time / 1000) + '</td></tr>';
+            view += '</table>';
+            view += '</div></div></div>';
+
+            if (i < partitions.length - 1){
+                view += '<hr/>';
+            }
+            console.log(partition);
+        }
+
+        $('#partitions').html(view);
     },
     show_disk_space: function(available, used, total){
         if (available !== null){
@@ -235,36 +327,7 @@ var device_details = {
     },
     show_up_for: function(up_for){
         if (up_for !== null){
-            var seconds_in_day = 24 * 60 * 60,
-                day_seconds = up_for % seconds_in_day,
-                days = (up_for - day_seconds) / seconds_in_day,
-                view = '';
-
-            if (days > 0){
-                view += days + ' days ';
-            }
-            
-            var hour_seconds = day_seconds % 3600,
-                hours = (day_seconds - hour_seconds) / 3600;
-
-            if (hours < 10){
-                hours = '0' + hours;
-            }
-            view += hours + ':';
-            
-            var minute_seconds = hour_seconds % 60,
-            minutes = (hour_seconds - minute_seconds) / 60;
-
-            if (minutes < 10){
-                minutes = '0' + minutes;
-            }
-            view += minutes + ':';
-            
-            if (minute_seconds < 10){
-                minute_seconds = '0' + minute_seconds;
-            }
-            view += minute_seconds;
-
+            var view = format_interval(up_for);
             $('#up-for').text(view);
         } else {
             $('#up-for').text('--');
@@ -343,7 +406,7 @@ var device_usage = {
                 resp.network_io_write
             )
 
-            console.log(resp);
+            // console.log(resp);
 
             // TODO: make this better
             setTimeout(function(){

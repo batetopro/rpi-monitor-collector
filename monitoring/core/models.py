@@ -16,6 +16,7 @@ class DeviceModel(models.Model):
     cpu_frequency = models.FloatField(null=True)
     cpu_temperature = models.PositiveBigIntegerField(null=True)
     cpu_usage = models.PositiveSmallIntegerField(null=True)
+    disk_partitions = models.JSONField(null=True)
     disk_space_available = models.PositiveBigIntegerField(null=True)
     disk_space_total = models.PositiveBigIntegerField(null=True)
     disk_space_used = models.PositiveBigIntegerField(null=True)
