@@ -4,12 +4,54 @@ from io import StringIO
 
 
 from django.contrib.admin.views.decorators import staff_member_required
+from django.urls import reverse
 from django.http.response import HttpResponse, JsonResponse
 from django.utils.timezone import now
 
 
 from core.diagrams import MonitoringDiagram
 from core.models import DeviceModel, DeviceUsageModel, HostInfoModel
+
+
+@staff_member_required
+def devices(request):
+    result = {
+        'devices': [],
+    }
+
+    for device in DeviceModel.objects.\
+            select_related('host_info', 'ssh_conf').all():
+
+        entry = {
+            'device_id': device.id,
+            'change_link': reverse(
+                'admin:core_devicemodel_change',
+                args=(device.id, )
+            ),
+            'status': device.status,
+            'used_ram': device.used_ram,
+            'cpu_usage': device.cpu_usage,
+            'cpu_temperature': device.cpu_temperature,
+            'used_storage': device.disk_space_used,
+        }
+
+        if device.disk_space_available is not None and \
+                device.disk_space_used is not None:
+            entry['total_storage'] = \
+                device.disk_space_available + device.disk_space_used
+        else:
+            entry['total_storage'] = None
+
+        try:
+            entry['hostname'] = device.host_info.hostname
+            entry['total_ram'] = device.host_info.total_ram
+        except HostInfoModel.DoesNotExist:
+            entry['hostname'] = device.ssh_conf.hostname
+            entry['total_ram'] = None
+
+        result["devices"].append(entry)
+
+    return JsonResponse(result, safe=False)
 
 
 @staff_member_required
@@ -48,7 +90,7 @@ def device_info(request, device_id):
         result['up_since'] = device.up_since.timestamp()
         if result['last_seen']:
             result['up_for'] = \
-                round((device.last_seen - device.up_since).total_seconds())
+                round((device.time_on_host - device.up_since).total_seconds())
         else:
             result['up_for'] = None
     else:

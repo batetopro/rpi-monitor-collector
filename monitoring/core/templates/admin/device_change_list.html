@@ -1,11 +1,41 @@
-{% extends 'admin/change_list.html' %}
+{% extends 'admin/custom_change_list.html' %}
 
-{% block object-tools %}
-    <script type="text/javascript">
-        function autoRefreshPage() {
-            window.location = window.location.href;
-        }
-        setInterval(autoRefreshPage, 5000);
+{% load i18n static %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href="{% static "css/custom.css" %}">
+{% endblock %}
+
+{% block content_title %}{% endblock %}
+{% block content_subtitle %}{% endblock %}
+
+{% block content %}
+    <table class="table" id="devices">
+        <thead>
+            <tr>
+                <th>Hostname</th>
+                <th>Status</th>
+                <th>RAM</th>
+                <th>CPU usage</th>
+                <th>CPU temperature</th>
+                <th>Storage</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="6" class="text-center">
+                    <strong>Loading ...</strong>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <script src="{% static "js/devices.js" %}"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script>
+        $(function(){
+            devices_table.url = "{% url 'core:devices_list' %}";
+            devices_table.ssh_configurations_url = "{% url 'admin:core_sshconfigurationmodel_changelist' %}";
+            devices_table.render();
+        })
     </script>
-    {{ block.super }}
 {% endblock %}

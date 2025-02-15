@@ -9,6 +9,11 @@ app_name = 'core'
 
 urlpatterns = [
     path(
+        "device/list/",
+        core_views.devices,
+        name='devices_list'
+    ),
+    path(
         "device/<int:device_id>/info/",
         core_views.device_info,
         name='device_info'
