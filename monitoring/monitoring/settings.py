@@ -143,3 +143,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 SCAN_NETWORKS = os.getenv('SCAN_NETWORKS').split('|')
+if os.getenv('DNS_SERVER', '').strip():
+    DNS_SERVERS = os.getenv('DNS_SERVER').split('|')
+else:
+    DNS_SERVERS = []

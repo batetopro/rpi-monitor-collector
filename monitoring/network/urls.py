@@ -13,9 +13,4 @@ urlpatterns = [
         network_views.refresh_arp,
         name='refresh_arp'
     ),
-    path(
-        "refresh_dns/",
-        network_views.refresh_dns,
-        name='refresh_dns'
-    ),
 ]

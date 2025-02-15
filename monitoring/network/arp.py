@@ -7,6 +7,7 @@ import threading
 from django.conf import settings
 
 
+from network.dns import ReverseDnsResolver
 from network.models import NeighbourModel
 
 
@@ -44,6 +45,8 @@ class ArpCollector:
             ping_threads[k].join()
 
     def save_neighbors(self, arp_records):
+        reverse_resolver = ReverseDnsResolver(settings.DNS_SERVERS)
+
         old_neighbors = dict()
         for entry in NeighbourModel.objects.all():
             old_neighbors[
@@ -59,12 +62,18 @@ class ArpCollector:
                 del old_neighbors[key]
 
             record['status'] = 'connected'
+            record['reverse_dns_lookup'] = reverse_resolver.lookup(
+                record['address']
+            )
             new_neighbors.append(NeighbourModel(**record))
 
         NeighbourModel.objects.bulk_create(
             new_neighbors,
             update_conflicts=True,
-            update_fields=["status", "mask", "physical_address", "type"],
+            update_fields=[
+                "status", "mask", "physical_address", "type",
+                "reverse_dns_lookup"
+            ],
             unique_fields=["address", "interface"],
         )
 
@@ -76,7 +85,8 @@ class ArpCollector:
             status='disconnected',
             mask=None,
             physical_address=None,
-            type=None
+            type=None,
+            reverse_dns_lookup=None
         )
 
     def collect(self):
