@@ -81,13 +81,9 @@ class HostInfo:
             cpu_temperature=cpu_temperature,
             cpu_usage=cpu_usage,
             used_ram=used_ram,
-            disk_space_available=disk_space_available,
-            disk_space_used=disk_space_used,
             disk_io_read_bytes=disk_io_read_bytes,
             disk_io_write_bytes=disk_io_write_bytes,
             net_io_bytes_recv=net_io_bytes_recv,
             net_io_bytes_sent=net_io_bytes_sent,
-            used_swap=used_swap,
-            total_swap=total_swap,
             current_date=current_date
         )
