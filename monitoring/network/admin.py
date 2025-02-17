@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 
+from core.admin import admin_site
 from network.models import NeighbourModel
 
 
@@ -34,4 +35,4 @@ class NeighborAdminModel(admin.ModelAdmin):
         return False
 
 
-admin.site.register(NeighbourModel, NeighborAdminModel)
+admin_site.register(NeighbourModel, NeighborAdminModel)

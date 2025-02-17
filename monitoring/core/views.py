@@ -26,7 +26,7 @@ def devices(request):
         entry = {
             'device_id': device.id,
             'change_link': reverse(
-                'admin:core_devicemodel_change',
+                'management:core_devicemodel_change',
                 args=(device.id, )
             ),
             'status': device.status,

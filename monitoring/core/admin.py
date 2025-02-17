@@ -1,3 +1,6 @@
+import socket
+
+
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
@@ -153,7 +156,7 @@ class SSHConnectionAdminModel(admin.ModelAdmin):
             actions.append(
                 '<a href="' +
                 reverse(
-                    'admin:core_devicemodel_change', args=[obj.device_id]
+                    'management:core_devicemodel_change', args=[obj.device_id]
                 ) +
                 '">View device</a>'
             )
@@ -171,6 +174,20 @@ class SSHConnectionAdminModel(admin.ModelAdmin):
         return str(obj)
 
 
-admin.site.register(DeviceModel, DeviceAdminModel)
-admin.site.register(SSHKeyModel, SSHKeyAdminModel)
-admin.site.register(SSHConnectionModel, SSHConnectionAdminModel)
+class MyAdminSite(admin.AdminSite):
+    # Text to put at the end of each page's <title>.
+    site_title = 'RPi management @ ' + socket.gethostname()
+
+    # Text to put in each page's <h1> (and above login form).
+    site_header = '@' + socket.gethostname()
+
+    # Text to put at the top of the admin index page.
+    index_title = 'Monitor your raspberry'
+
+
+admin_site = MyAdminSite(name='management')
+
+
+admin_site.register(DeviceModel, DeviceAdminModel)
+admin_site.register(SSHKeyModel, SSHKeyAdminModel)
+admin_site.register(SSHConnectionModel, SSHConnectionAdminModel)
