@@ -22,7 +22,7 @@ class Command(BaseCommand):
 
     def get_devices(self):
         result = []
-        for device in DeviceModel.objects.all():
+        for device in DeviceModel.objects.filter(ssh_conf__status='enabled'):
             result.append(device)
         return result
 

@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 
 
-from core.models import DeviceModel, HostInfoModel, SSHConfigurationModel, \
+from core.models import DeviceModel, HostInfoModel, SSHConnectionModel, \
     SSHKeyModel
 
 
@@ -82,12 +82,18 @@ class DeviceAdminModel(admin.ModelAdmin):
         return False
 
 
-class SSHConfigruationAdminModel(admin.ModelAdmin):
+class SSHConnectionAdminModel(admin.ModelAdmin):
     fieldsets = [
+        (
+            "Target",
+            {
+                "fields": ["username", "hostname", "port"],
+            }
+        ),
         (
             "Connection",
             {
-                "fields": ["username", "hostname", "port"],
+                "fields": ["state", "status"],
             },
         ),
         (
@@ -97,18 +103,18 @@ class SSHConfigruationAdminModel(admin.ModelAdmin):
             },
         ),
         (
-            "Monitoring",
+            "Virtual environment",
             {
                 "fields": ["monitoring_path", ],
             },
         ),
     ]
 
-    list_display = [
-        "username", "hostname", "port", "config_actions"
-    ]
+    list_display = ["state", "target", "config_actions", ]
 
-    list_display_links = ["hostname", ]
+    list_display_links = ["target", ]
+
+    readonly_fields = ["state", ]
 
     search_fields = ("username", "hostname")
 
@@ -130,21 +136,36 @@ class SSHConfigruationAdminModel(admin.ModelAdmin):
 
     @admin.display(description="Actions")
     def config_actions(self, obj):
-        actions = [
-            '<a href="' +
-            reverse(
-                'admin:core_sshconfigurationmodel_change',
-                args=[obj.device_id]
-            ) +
-            '">Edit</a>',
-            '<a href="' +
-            reverse('admin:core_devicemodel_change', args=[obj.device_id]) +
-            '">View device</a>'
-        ]
+        actions = []
+
+        if obj.status == 'enabled':
+            actions.append(
+                '<a href="' +
+                reverse('core:ssh_disable', args=[obj.device_id]) +
+                '">Disable</a>'
+            )
+        else:
+            actions.append(
+                '<a href="' +
+                reverse('core:ssh_enable', args=[obj.device_id]) +
+                '">Enable</a>'
+            )
+        if obj.device_id:
+            actions.append(
+                '<a href="' +
+                reverse(
+                    'admin:core_devicemodel_change', args=[obj.device_id]
+                ) +
+                '">View device</a>'
+            )
 
         return format_html('&nbsp;|&nbsp;'.join(actions))
+
+    @admin.display(description="Target", ordering="hostname")
+    def target(self, obj):
+        return str(obj)
 
 
 admin.site.register(DeviceModel, DeviceAdminModel)
 admin.site.register(SSHKeyModel, SSHKeyAdminModel)
-admin.site.register(SSHConfigurationModel, SSHConfigruationAdminModel)
+admin.site.register(SSHConnectionModel, SSHConnectionAdminModel)

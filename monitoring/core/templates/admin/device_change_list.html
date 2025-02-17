@@ -34,7 +34,7 @@
     <script>
         $(function(){
             devices_table.url = "{% url 'core:devices_list' %}";
-            devices_table.ssh_configurations_url = "{% url 'admin:core_sshconfigurationmodel_changelist' %}";
+            devices_table.ssh_configurations_url = "{% url 'admin:core_sshconnectionmodel_add' %}";
             devices_table.render();
         })
     </script>

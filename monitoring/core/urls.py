@@ -23,4 +23,14 @@ urlpatterns = [
         core_views.device_usage,
         name='device_usage'
     ),
+    path(
+        "ssh/<int:connection_id>/enable/",
+        core_views.ssh_connection_enable,
+        name='ssh_enable'
+    ),
+    path(
+        "ssh/<int:connection_id>/disable/",
+        core_views.ssh_connection_disable,
+        name='ssh_disable'
+    ),
 ]

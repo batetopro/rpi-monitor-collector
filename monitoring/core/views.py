@@ -5,11 +5,13 @@ from io import StringIO
 
 from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse
-from django.http.response import HttpResponse, JsonResponse
+from django.http.response import HttpResponse, HttpResponseRedirect, \
+    JsonResponse
 from django.utils.timezone import now
 
 
-from core.models import DeviceModel, DeviceUsageModel, HostInfoModel
+from core.models import DeviceModel, DeviceUsageModel, HostInfoModel, \
+    SSHConnectionModel
 
 
 @staff_member_required
@@ -144,3 +146,17 @@ def device_usage(request, device_id):
             content=buf.getvalue().strip(),
             content_type='text/csv'
         )
+
+
+@staff_member_required
+def ssh_connection_disable(request, connection_id):
+    SSHConnectionModel.objects.filter(pk=connection_id).\
+        update(status='disabled')
+    return HttpResponseRedirect(request.META["HTTP_REFERER"])
+
+
+@staff_member_required
+def ssh_connection_enable(request, connection_id):
+    SSHConnectionModel.objects.filter(pk=connection_id).\
+        update(status='enabled')
+    return HttpResponseRedirect(request.META["HTTP_REFERER"])

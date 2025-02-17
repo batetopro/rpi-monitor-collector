@@ -15,7 +15,7 @@
             <span class="badge {{ status_class }} mb-2" id="device-status">{{ status }}</span>
         </div>
         <div class="pull-right">
-            <a href="{% url 'admin:core_sshconfigurationmodel_change' original.id %}" target="_balnk">SSH Configuration</a>
+            <a href="{% url 'admin:core_sshconnectionmodel_change' original.id %}" target="_balnk">SSH Configuration</a>
         </div>
     </div>
     <div class="alert alert-danger" id="error-message" style="display: none;"></div>

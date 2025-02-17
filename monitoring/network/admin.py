@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.utils.html import format_html
 
 
 from network.models import NeighbourModel
@@ -11,7 +10,7 @@ class NeighborAdminModel(admin.ModelAdmin):
     fields = ("type", "physical_address", "mask",)
 
     list_display = (
-        "address", "type", "physical_address", "mask", 
+        "address", "type", "physical_address", "mask",
         "interface", "reverse_dns_lookup"
     )
     list_display_links = ("address", )

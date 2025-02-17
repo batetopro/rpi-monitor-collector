@@ -3,6 +3,12 @@ from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
 
+SSH_CONNECTION_STATUS = [
+    ("enabled", "Enabled"),
+    ("disabled", "Disabled"),
+]
+
+
 class DeviceModel(models.Model):
     class Meta:
         verbose_name = "Device"
@@ -48,10 +54,10 @@ class SSHKeyModel(models.Model):
         return self.name
 
 
-class SSHConfigurationModel(models.Model):
+class SSHConnectionModel(models.Model):
     class Meta:
-        verbose_name = "SSH Configuration"
-        verbose_name_plural = "SSH Configurations"
+        verbose_name = "SSH Connection"
+        verbose_name_plural = "SSH Connections"
 
     device = models.OneToOneField(
         DeviceModel,
@@ -61,10 +67,17 @@ class SSHConfigurationModel(models.Model):
     ssh_key = models.ForeignKey(
         SSHKeyModel, on_delete=models.PROTECT, null=True
     )
+
+    status = models.CharField(max_length=60, null=False, default='enabled',
+                              choices=SSH_CONNECTION_STATUS)
+    state = models.CharField(max_length=60, null=False,
+                             default='disconnected')
     hostname = models.CharField(max_length=255, null=False)
     port = models.IntegerField(null=False, default=22)
-    username = models.CharField(max_length=255, null=False)
-    monitoring_path = models.CharField(max_length=2048, null=False)
+    username = models.CharField(max_length=255, null=False,
+                                default='rpi-monitor')
+    monitoring_path = models.CharField(max_length=2048, null=False,
+                                       default='/home/rpi-monitor/rpi-monitor')
 
     def __str__(self):
         return f'{self.username}@{self.hostname}:{self.port}'
@@ -115,7 +128,7 @@ class DeviceUsageModel(models.Model):
     )
 
 
-@receiver(pre_save, sender=SSHConfigurationModel)
+@receiver(pre_save, sender=SSHConnectionModel)
 def populate_book_number_by_release_year(sender, instance, *args, **kwargs):
     if instance.device_id is None:
         device = DeviceModel.objects.create(status='installing')
