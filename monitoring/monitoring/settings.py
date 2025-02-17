@@ -142,7 +142,11 @@ STATIC_ROOT = os.getenv('STATIC_ROOT')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-SCAN_NETWORKS = os.getenv('SCAN_NETWORKS').split('|')
+if os.getenv('SCAN_NETWORKS', '').strip():
+    SCAN_NETWORKS = os.getenv('SCAN_NETWORKS').split('|')
+else:
+    SCAN_NETWORKS = []
+
 if os.getenv('DNS_SERVER', '').strip():
     DNS_SERVERS = os.getenv('DNS_SERVER').split('|')
 else:

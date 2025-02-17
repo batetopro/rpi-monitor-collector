@@ -1,12 +1,9 @@
-import ipaddress
 import os
 import subprocess
-import threading
 
 
 from django.conf import settings
 from filelock import FileLock
-from pythonping import ping
 
 
 from network.dns import ReverseDnsResolver
@@ -14,38 +11,6 @@ from network.models import NeighbourModel
 
 
 class ArpCollector:
-    def make_pings(self):
-        number_of_ip_buckets = 8
-        ip_buckets = []
-        ip_index = 0
-        ping_threads = []
-
-        for k in range(number_of_ip_buckets):
-            ip_buckets.append(list())
-
-        for network_address in settings.SCAN_NETWORKS:
-            network = ipaddress.IPv4Network(network_address)
-            for ip in network:
-                if ip.is_multicast or ip == network.broadcast_address:
-                    continue
-
-                ip_buckets[ip_index % number_of_ip_buckets].append(str(ip))
-                ip_index += 1
-
-        for k in range(number_of_ip_buckets):
-            ping_threads.append(
-                threading.Thread(
-                    target=ping_ip_addresses,
-                    args=(ip_buckets[k])
-                )
-            )
-
-        for k in range(number_of_ip_buckets):
-            ping_threads[k].start()
-
-        for k in range(number_of_ip_buckets):
-            ping_threads[k].join()
-
     def save_neighbors(self, arp_records):
         reverse_resolver = ReverseDnsResolver(settings.DNS_SERVERS)
 
@@ -96,8 +61,6 @@ class ArpCollector:
         lock = FileLock(path)
 
         with lock.acquire(timeout=0):
-            self.make_pings()
-
             if os.name == 'nt':
                 arp_records = collect_arp_windows()
             else:
@@ -107,7 +70,15 @@ class ArpCollector:
 
 
 def collect_arp_windows():
-    data = os.popen('arp -a').read()
+    command = "arp -a"
+    process = subprocess.Popen(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=None,
+        shell=True
+    )
+
+    data = process.communicate()[0].decode()
     result = []
 
     current_interface = None
@@ -173,8 +144,3 @@ def collect_arp_linux():
             result.append(record)
 
     return result
-
-
-def ping_ip_addresses(*ip_addresses):
-    for ip in ip_addresses:
-        ping(ip, timeout=2, count=1)

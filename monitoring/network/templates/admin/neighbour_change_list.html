@@ -4,7 +4,16 @@
     {{ block.super }}
 
     <li>
-        <a href="{% url 'network:refresh_arp' %}">Refresh</a>
+        <form method="post" action="{% url 'network:make_pings' %}">
+            {% csrf_token %}
+            <button type="submit">Make pings</button>
+        </form>
+    </li>
+    <li>
+        <form method="post" action="{% url 'network:refresh_arp' %}">
+            {% csrf_token %}
+            <button type="submit">Refresh ARP</button>
+        </form>
     </li>
 
 {% endblock %}
