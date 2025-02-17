@@ -11,9 +11,16 @@ from network.models import NeighbourModel
 
 
 class ArpCollector:
-    def save_neighbors(self, arp_records):
-        reverse_resolver = ReverseDnsResolver(settings.DNS_SERVERS)
+    @property
+    def reverse_resolver(self):
+        if self._reverse_resolver is None:
+            self._reverse_resolver = ReverseDnsResolver()
+        return self._reverse_resolver
 
+    def __init__(self):
+        self._reverse_resolver = None
+
+    def save_neighbors(self, arp_records):
         old_neighbors = dict()
         for entry in NeighbourModel.objects.all():
             old_neighbors[
@@ -28,8 +35,7 @@ class ArpCollector:
             if key in old_neighbors:
                 del old_neighbors[key]
 
-            record['status'] = 'connected'
-            record['reverse_dns_lookup'] = reverse_resolver.lookup(
+            record['reverse_dns_lookup'] = self.reverse_resolver.lookup(
                 record['address']
             )
             new_neighbors.append(NeighbourModel(**record))
@@ -38,8 +44,7 @@ class ArpCollector:
             new_neighbors,
             update_conflicts=True,
             update_fields=[
-                "status", "mask", "physical_address", "type",
-                "reverse_dns_lookup"
+                "mask", "physical_address", "type", "reverse_dns_lookup"
             ],
             unique_fields=["address", "interface"],
         )
@@ -49,7 +54,6 @@ class ArpCollector:
                 n.pk for n in old_neighbors.values()
             ]
         ).update(
-            status='disconnected',
             mask=None,
             physical_address=None,
             type=None,

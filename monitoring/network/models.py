@@ -9,8 +9,6 @@ class NeighbourModel(models.Model):
 
     address = models.CharField(max_length=64, null=False)
     interface = models.CharField(max_length=64, null=False)
-    status = models.CharField(max_length=20, null=False,
-                              default='disconnected')
     mask = models.CharField(max_length=8, null=True)
     physical_address = models.CharField(max_length=64, null=True)
     type = models.CharField(max_length=32, null=True)

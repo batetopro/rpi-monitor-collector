@@ -58,7 +58,7 @@ class LocalNetworkPings:
                     continue
 
                 a = ipaddress.IPv4Address(address.address)
-                if a.is_loopback:
+                if a.is_loopback or address.netmask is None:
                     continue
 
                 network = ipaddress.IPv4Network(

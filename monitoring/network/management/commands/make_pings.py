@@ -14,4 +14,4 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         pings = LocalNetworkPings()
         pings.make()
-        print(pings.sucessful_pings)
+        print(pings.successful_pings)
