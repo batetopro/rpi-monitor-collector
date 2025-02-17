@@ -6,6 +6,7 @@ import threading
 
 from django.conf import settings
 from filelock import FileLock
+from pythonping import ping
 
 
 from network.dns import ReverseDnsResolver
@@ -175,9 +176,5 @@ def collect_arp_linux():
 
 
 def ping_ip_addresses(*ip_addresses):
-    if os.name == 'nt':
-        for ip in ip_addresses:
-            os.popen('ping -n 1 {}'.format(ip))
-    else:
-        for ip in ip_addresses:
-            os.popen('ping -c 1 {}'.format(ip))
+    for ip in ip_addresses:
+        ping(ip, timeout=2, count=1)

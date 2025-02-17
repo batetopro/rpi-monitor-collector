@@ -5,3 +5,4 @@ python-dotenv
 mysqlclient
 dnspython
 filelock
+pythonping
