@@ -157,6 +157,8 @@ def ssh_connection_disable(request, connection_id):
 
 @staff_member_required
 def ssh_connection_enable(request, connection_id):
-    SSHConnectionModel.objects.filter(pk=connection_id).\
-        update(status='enabled')
+    connection = SSHConnectionModel.objects.get(pk=connection_id)
+    connection.status = 'enabled'
+    connection.save()
+
     return HttpResponseRedirect(request.META["HTTP_REFERER"])

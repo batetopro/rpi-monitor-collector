@@ -93,7 +93,7 @@ class SSHConnectionAdminModel(admin.ModelAdmin):
         (
             "Connection",
             {
-                "fields": ["state", "status"],
+                "fields": ["state", "status", "message"],
             },
         ),
         (
@@ -110,11 +110,13 @@ class SSHConnectionAdminModel(admin.ModelAdmin):
         ),
     ]
 
-    list_display = ["state", "target", "config_actions", ]
+    list_display = ["runtime_state", "target", "config_actions", ]
 
     list_display_links = ["target", ]
 
-    readonly_fields = ["state", ]
+    ordering = ("-status", "state", "hostname", )
+
+    readonly_fields = ["state", "message", ]
 
     search_fields = ("username", "hostname")
 
@@ -123,9 +125,6 @@ class SSHConnectionAdminModel(admin.ModelAdmin):
         if 'delete_selected' in actions:
             del actions['delete_selected']
         return actions
-
-    def get_ordering(self, request):
-        return ("hostname", )
 
     def has_delete_permission(self, request, obj=None):
         if obj:
@@ -160,6 +159,12 @@ class SSHConnectionAdminModel(admin.ModelAdmin):
             )
 
         return format_html('&nbsp;|&nbsp;'.join(actions))
+
+    @admin.display(description="State", ordering="state")
+    def runtime_state(self, obj):
+        if obj.status == 'disabled':
+            return obj.status
+        return obj.state
 
     @admin.display(description="Target", ordering="hostname")
     def target(self, obj):

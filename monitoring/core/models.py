@@ -58,6 +58,7 @@ class SSHConnectionModel(models.Model):
     class Meta:
         verbose_name = "SSH Connection"
         verbose_name_plural = "SSH Connections"
+        unique_together = ("username", "hostname")
 
     device = models.OneToOneField(
         DeviceModel,
@@ -70,8 +71,9 @@ class SSHConnectionModel(models.Model):
 
     status = models.CharField(max_length=60, null=False, default='enabled',
                               choices=SSH_CONNECTION_STATUS)
-    state = models.CharField(max_length=60, null=False,
-                             default='disconnected')
+    state = models.CharField(max_length=60, null=False, default='disconnected')
+    message = models.TextField(null=True)
+
     hostname = models.CharField(max_length=255, null=False)
     port = models.IntegerField(null=False, default=22)
     username = models.CharField(max_length=255, null=False,
@@ -81,6 +83,15 @@ class SSHConnectionModel(models.Model):
 
     def __str__(self):
         return f'{self.username}@{self.hostname}:{self.port}'
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+
+        if self.status == 'enabled':
+            from core.connections.ssh import SSHConnection
+            SSHConnection.test_connection(self)
+
+        return super().save(force_insert, force_update, using, update_fields)
 
 
 class HostInfoModel(models.Model):
@@ -129,7 +140,7 @@ class DeviceUsageModel(models.Model):
 
 
 @receiver(pre_save, sender=SSHConnectionModel)
-def populate_book_number_by_release_year(sender, instance, *args, **kwargs):
+def set_connection_device(sender, instance, *args, **kwargs):
     if instance.device_id is None:
         device = DeviceModel.objects.create(status='installing')
         instance.device_id = device.id
