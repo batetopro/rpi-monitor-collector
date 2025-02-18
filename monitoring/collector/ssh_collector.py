@@ -2,8 +2,9 @@ import time
 import threading
 
 
-from core.receiver import CollectorReceiver
 from core.connections.ssh import SSHConnection
+from core.receiver import CollectorReceiver
+from core.scheduler import Scheduler
 
 
 class SSHCollector:
@@ -29,14 +30,18 @@ class SSHCollector:
             self._receiver = CollectorReceiver(self.connection_id)
         return self._receiver
 
+    @property
+    def scheduler(self):
+        return self._scheduler
+
     def __init__(self, connection_id):
         self._channel = None
         self._connection_id = connection_id
         self._connection = SSHConnection(connection_id)
         self._receiver = None
+        self._scheduler = Scheduler()
         self._should_stop = False
         self._thread = None
-        self._queries = []
 
     def collect(self):
         while not self._should_stop:
@@ -55,21 +60,31 @@ class SSHCollector:
             except Exception:
                 break
 
-            self._queries.append("platform")
-            self._queries.append("host")
-            self._queries.append("runtime")
+            self.scheduler.add_task("platform", 0)
+            self.scheduler.add_task("host", 1)
+            self.scheduler.add_task("net_interfaces", 2)
+            self.scheduler.add_task("runtime", 3)
 
             while not self._should_stop:
-                if not self._queries:
-                    continue
+                timestamp = time.time()
+                queries = self.scheduler.get_awaiting(timestamp)
 
-                query = self._queries.pop(0)
-                data = self.send_and_read(query)
-                self.receiver.receive(query, data)
+                while queries:
+                    query = queries.pop(0)
+                    data = self.send_and_read(query)
+                    self.receiver.receive(query, data)
 
-                if query == "runtime":
-                    time.sleep(.1)
-                    self._queries.append("runtime")
+                    if query == "net_interfaces":
+                        self.scheduler.add_task(
+                            "net_interfaces",
+                            timestamp + 60.0
+                        )
+
+                    if query == "runtime":
+                        self.scheduler.add_task(
+                            "runtime",
+                            timestamp + 1.0
+                        )
 
         if self._channel is not None:
             self.channel.close()

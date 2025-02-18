@@ -6,6 +6,7 @@ from django.conf import settings
 
 
 from core.host import HostRegistry
+from core.network_interface import NetworkInterfaceRegistry
 from core.platform import PlatformRegistry
 
 
@@ -14,8 +15,9 @@ class CollectorReceiver:
         self._connection_id = connection_id
 
         self._callbacks = {
-            "platform": self.receive_platform,
             "host": self.receive_host,
+            "platform": self.receive_platform,
+            "net_interfaces": self.receive_net_interfaces,
             "runtime": self.receive_runtime,
         }
 
@@ -51,6 +53,14 @@ class CollectorReceiver:
         )
 
         self._host_id = host.pk
+
+    def receive_net_interfaces(self, data):
+        data = json.loads(data)
+
+        NetworkInterfaceRegistry.store(
+            host_id=self._host_id,
+            net_interfaces=data['net_interfaces']
+        )
 
     def receive_runtime(self, data):
         data = json.loads(data)

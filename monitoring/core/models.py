@@ -130,3 +130,22 @@ class HostRuntimeModel(models.Model):
     net_io_bytes_recv = models.PositiveBigIntegerField(null=True)
     net_io_bytes_sent = models.PositiveBigIntegerField(null=True)
     time_saved = models.DateTimeField(null=False, db_index=True)
+
+
+class NetworkInterfaceModel(models.Model):
+    class Meta:
+        verbose_name = "Network Interface"
+        verbose_name_plural = "Network Interfaces"
+        unique_together = ('host', 'name', )
+
+    host = models.ForeignKey(
+        HostModel, on_delete=models.CASCADE, null=False
+    )
+    name = models.CharField(max_length=64, null=False)
+    isup = models.BooleanField(null=True)
+    duplex = models.CharField(max_length=20, null=True)
+    speed = models.PositiveIntegerField(null=True)
+    mtu = models.PositiveIntegerField(null=True)
+    ip4_address = models.CharField(max_length=40, null=True)
+    ip6_address = models.CharField(max_length=120, null=True)
+    addresses = models.JSONField(null=True)

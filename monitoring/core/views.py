@@ -11,9 +11,10 @@ from django.http.response import HttpResponse, HttpResponseRedirect, \
 from django.utils.timezone import now
 
 
+from core.connections.ssh import SSHConnection
 from core.host import HostRegistry
 from core.models import HostRuntimeModel, SSHConnectionModel
-from core.connections.ssh import SSHConnection
+from core.network_interface import NetworkInterfaceRegistry
 
 
 @staff_member_required
@@ -28,6 +29,12 @@ def hosts(request):
 @staff_member_required
 def host(request, host_id):
     result = HostRegistry.get_host(host_id)
+    return JsonResponse(result, safe=False)
+
+
+@staff_member_required
+def host_net_interfaces(request, host_id):
+    result = NetworkInterfaceRegistry.get_network_interfaces(host_id)
     return JsonResponse(result, safe=False)
 
 

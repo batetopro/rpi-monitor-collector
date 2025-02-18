@@ -160,10 +160,10 @@ var device_details = {
                 io_write_bytes = (partition.io_write_bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GBi';
             
             view += '<div class="container">';
-            view += '<h4>' + partition.device + '</h4>';
+            view += '<h4 title="' + partition.opts + '">' + partition.device + '</h4>';
             view += '<div class="clearfix">'
-            view += '<div class="pull-left">Mountpoint: <strong>' + partition.mountpoint + '</strong></div>';
-            view += '<div class="pull-right">Type: <strong>' + partition.fstype + '</strong></div>';
+            view += '<div class="float-start">Mountpoint: <strong>' + partition.mountpoint + '</strong></div>';
+            view += '<div class="float-end">Type: <strong>' + partition.fstype + '</strong></div>';
             view += '</div>';
             view += '<div class="progress mb-0">' + 
                 '<div class="progress-bar ' + space_badge + '" role="progressbar" aria-valuenow="' + space_usage + '" aria-valuemin="0" aria-valuemax="100" style="width: ' + space_usage + '%;"></div>' + 
@@ -845,5 +845,112 @@ var device_usage = {
         return result;
     }
 }
+
+
+var network_interfaces = {
+    url: undefined,
+    build: function(){
+        network_interfaces.load();
+    },
+    load: function(){
+        $.getJSON(network_interfaces.url, {}, function(resp){
+            var view = '';
+
+            if (resp.length == 0){
+                view = '<div class="alert bg-info">Information about network interfaces is not collected yet.</div>';
+            } else {
+                var view = '<div class="accordion" id="network-interfaces-accordion">';
+
+                for (var i = 0; i < resp.length; i++){
+                    var interface = resp[i];
+
+                    if (interface.isup) {
+                        var button_class = 'bg-info';
+                    } else {
+                        var button_class = 'bg-secondary';
+                    }
+
+                    if (interface.ip4_address){
+                        var ip4_address = interface.ip4_address;
+                    } else {
+                        var ip4_address = '--';
+                    }
+
+                    if (interface.ip6_address){
+                        var ip6_address = interface.ip6_address;
+                    } else {
+                        var ip6_address = '--';
+                    }
+
+                    view += '<div class="accordion-item">';
+                    view += '<h2 class="accordion-header" id="heading-ni-' + i + '">';
+                    view += '<button class="accordion-button ' + button_class + ' text-white  collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-ni-' + i + '" aria-expanded="false" aria-controls="collapse-ni-' + i + '">';
+                    view += interface.name + ' - ' + ip4_address;
+                    view += '</button>';
+                    view += '</h2>';
+                    
+                    view += '<div id="collapse-ni-' + i + '" class="accordion-collapse collapse p-0" aria-labelledby="heading-ni-' + i + '" data-bs-parent="#network-interfaces-accordion" style="">';
+                    
+                    view += '<div class="accordion-body p-0">';
+
+                    view += '<table class="table m-0">';
+                    view += '<tr><td width="140">Status</td><td>';
+                    if (interface.isup) {
+                        view += '<span class="badge bg-success">UP</span>';
+                    } else {
+                        view += '<span class="badge bg-danger">DOWN</span>';
+                    }
+                    view += '</td></tr>';
+                    view += '<tr><td>IP4</td><td>' + ip4_address + '</td></tr>';
+                    view += '<tr><td>IP6</td><td>' + ip6_address + '</td></tr>';
+                    view += '<tr><td>MTU</td><td>' + interface.mtu + '</td></tr>';
+                    view += '<tr><td>Duplex</td><td>' + interface.duplex + '</td></tr>';
+                    view += '<tr><td>Speed</td><td>' + interface.speed + '</td></tr>';
+                    view += '</table>'
+                    
+                    if (interface.addresses){
+                        view += '<table class="table mb-0">';
+                        view += '<tr>';
+                        view += '<th>Family</th>';
+                        view += '<th>Address</th>';
+                        view += '<th>Netmask</th>';
+                        view += '<th>Broadcast</th>';
+                        view += '<th>PTP</th>';
+                        view += '</tr>';
+                        for (var j = 0; j < interface.addresses.length; j++){
+                            var address = interface.addresses[j],
+                                netmask = (address.netmask) ? address.netmask : '--',
+                                broadcast = (address.broadcast) ? address.broadcast : '--',
+                                ptp = (address.ptp) ? address.ptp : '--';
+                            view += '<tr>';
+                            view += '<td>' + address.family + '</td>';
+                            view += '<td>' + address.address + '</td>';
+                            view += '<td>' + netmask + '</td>';
+                            view += '<td>' + broadcast + '</td>';
+                            view += '<td>' + ptp + '</td>';
+                            view += '</tr>'
+                        }
+                        view += '</table>';
+                    }
+                    
+                    view += '</div>';
+                    view += '</div>';
+                }
+
+                view += '</div>';
+            }
+            
+            $('#network-interfaces').html(view);
+
+            setTimeout(
+                function(){
+                    network_interfaces.load();
+                },
+                60000
+            )
+
+        });
+    }
+};
 
 

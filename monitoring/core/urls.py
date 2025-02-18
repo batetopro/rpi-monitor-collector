@@ -19,6 +19,11 @@ urlpatterns = [
         name='host'
     ),
     path(
+        "host/<int:host_id>/net_interfaces/",
+        core_views.host_net_interfaces,
+        name='host_net_interfaces'
+    ),
+    path(
         "host/<int:host_id>/runtime/",
         core_views.host_runtime,
         name='host_runtime'
