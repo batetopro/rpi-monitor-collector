@@ -251,7 +251,7 @@ var device_details = {
         }
     },
     show_hostname: function(hostname){
-        $("#hostname").text(hostname);
+        $('#breadcrumb-navbar .breadcrumb-item.active').text(hostname);
     },
     show_last_seen: function(last_seen){
         if (last_seen !== null){

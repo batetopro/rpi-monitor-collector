@@ -45,7 +45,7 @@ def host_runtime_history(request, host_id):
 
     data = HostRuntimeModel.objects.filter(
             host_id=host_id,
-            time_saved__gt=now() - datetime.timedelta(minutes=30)
+            time_saved__gt=now() - datetime.timedelta(minutes=10)
         ).\
         values_list(
             'time_saved',

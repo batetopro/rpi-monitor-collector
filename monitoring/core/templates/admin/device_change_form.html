@@ -9,6 +9,7 @@
 {% endblock %}
 
 {% block menu-right %}
+    <a href="{% url 'management:core_sshconnectionmodel_change' connection.id %}">Connection</a>
     {% if connection.status == 'enabled' %}
         {% if connection.state == 'connected' %}
             <span class="badge bg-success" id="device-status">{{ connection.state }}</span>
@@ -30,7 +31,7 @@
                         Platform
                     </div>
                     <div class="float-end">
-                        <a href="{% url 'management:core_sshconnectionmodel_change' original.id %}">Connection</a>
+                        <a href="#">Sessions</a>
                     </div>
                 </div>
                 <div class="card-body p-0">
@@ -42,23 +43,35 @@
                             </tr>
                             <tr>
                                 <th>OS name</th>
-                                <td>{{ platform.os_name }}</td>
+                                <td>
+                                    <span title="{{ platform.platform }}">
+                                        {{ platform.os_name }}
+                                    </span>
+                                </td>
                             </tr>
                             <tr>
                                 <th>System</th>
                                 <td>{{ platform.system }}</td>
                             </tr>
                             <tr>
-                                <th>Machine</th>
-                                <td>{{ platform.machine }}</td>
-                            </tr>
-                            <tr>
-                                <th>Processor</th>
-                                <td>{{ platform.processor }}</td>
-                            </tr>
-                            <tr>
-                                <th>Platform</th>
-                                <td>{{ platform.platform }}</td>
+                                <th>Architecture</th>
+                                <td>
+                                    <span title="Machine">
+                                        {% if platform.machine %}
+                                            {{ platform.machine }}
+                                        {% else %}
+                                            --
+                                        {% endif %}
+                                    </span>
+                                    /
+                                    <span title="Processor">
+                                        {% if platform.processor %}
+                                            {{ platform.processor }}
+                                        {% else %}
+                                            --
+                                        {% endif %}
+                                    </span>
+                                </td>
                             </tr>
                         </table>
                     {% else %}

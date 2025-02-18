@@ -42,6 +42,7 @@ class HostRegistry:
 
         result = {
             'connection': {
+                'id': host.connection.pk,
                 'state': host.connection.state,
                 'status': host.connection.status
             },
@@ -168,6 +169,7 @@ class HostRegistry:
             disk_io_write_bytes=None,
             net_io_bytes_recv=None,
             net_io_bytes_sent=None,
+            up_since=None,
             time_on_host=None,
         )
 
