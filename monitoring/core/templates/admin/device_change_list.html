@@ -14,7 +14,7 @@
         <thead>
             <tr>
                 <th>Hostname</th>
-                <th>Status</th>
+                <th>State</th>
                 <th>RAM</th>
                 <th>CPU usage</th>
                 <th>CPU temperature</th>
@@ -33,8 +33,8 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script>
         $(function(){
-            devices_table.url = "{% url 'core:devices_list' %}";
-            devices_table.ssh_configurations_url = "{% url 'admin:core_sshconnectionmodel_add' %}";
+            devices_table.url = "{% url 'core:hosts_list' %}";
+            devices_table.ssh_configurations_url = "{% url 'management:core_sshconnectionmodel_add' %}";
             devices_table.render();
         })
     </script>

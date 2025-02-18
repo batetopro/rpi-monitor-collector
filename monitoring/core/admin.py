@@ -6,8 +6,8 @@ from django.urls import reverse
 from django.utils.html import format_html
 
 
-from core.models import DeviceModel, HostInfoModel, SSHConnectionModel, \
-    SSHKeyModel
+from core.host import HostRegistry
+from core.models import HostModel, SSHConnectionModel, SSHKeyModel
 
 
 class SSHKeyAdminModel(admin.ModelAdmin):
@@ -31,61 +31,28 @@ class SSHKeyAdminModel(admin.ModelAdmin):
     ]
 
 
-class DeviceAdminModel(admin.ModelAdmin):
+class HostAdminModel(admin.ModelAdmin):
     change_form_template = 'admin/device_change_form.html'
     change_list_template = "admin/device_change_list.html"
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}
 
-        device = DeviceModel.objects.get(pk=object_id)
+        info = HostRegistry.get_host(object_id)
 
-        try:
-            host_info = device.host_info
-            extra_context['hostname'] = host_info.hostname
-            extra_context['platform'] = {
-                'model': host_info.model,
-                'os_name': host_info.os_name,
-                'system': host_info.system,
-                'machine': host_info.machine,
-                'processor': host_info.processor,
-                'platform': host_info.platform,
-            }
-            extra_context['number_of_cpus'] = host_info.number_of_cpus
-            extra_context['max_cpu_frequency'] = \
-                round(host_info.max_cpu_frequency)
-            extra_context['total_ram'] = \
-                round(host_info.total_ram / (1024 * 1024), 2)
+        for k, v in info.items():
+            if k not in extra_context:
+                extra_context[k] = v
 
-        except HostInfoModel.DoesNotExist:
-            extra_context['hostname'] = device.ssh_conf.hostname
-            extra_context['platform'] = None
-            extra_context['number_of_cpus'] = None
-            extra_context['max_cpu_frequency'] = None
-            extra_context['total_ram'] = None
-
-        extra_context['device_id'] = object_id
-        extra_context['status'] = device.status
-
-        if device.status == 'connected':
-            extra_context['status_class'] = 'bg-success'
-        elif device.status == 'disconnected':
-            extra_context['status_class'] = 'bg-danger'
-        else:
-            extra_context['status_class'] = 'bg-secondary'
-
-        return super(DeviceAdminModel, self).change_view(
-            request,
-            object_id,
-            form_url=form_url,
-            extra_context=extra_context
-        )
+        return super().change_view(request, object_id, form_url, extra_context)
 
     def has_add_permission(self, request, obj=None):
         return False
 
 
 class SSHConnectionAdminModel(admin.ModelAdmin):
+    change_form_template = 'admin/connection_change_form.html'
+
     fieldsets = [
         (
             "Target",
@@ -123,6 +90,17 @@ class SSHConnectionAdminModel(admin.ModelAdmin):
 
     search_fields = ("username", "hostname")
 
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+
+        host = HostModel.objects.filter(connection_id=object_id).first()
+        if host:
+            extra_context['host_id'] = host.pk
+        else:
+            extra_context['host_id'] = None
+
+        return super().change_view(request, object_id, form_url, extra_context)
+
     def get_actions(self, request):
         actions = super().get_actions(request)
         if 'delete_selected' in actions:
@@ -143,22 +121,19 @@ class SSHConnectionAdminModel(admin.ModelAdmin):
         if obj.status == 'enabled':
             actions.append(
                 '<a href="' +
-                reverse('core:ssh_disable', args=[obj.device_id]) +
+                reverse('core:ssh_deploy', args=[obj.pk]) +
+                '">Deploy</a>'
+            )
+            actions.append(
+                '<a href="' +
+                reverse('core:ssh_disable', args=[obj.pk]) +
                 '">Disable</a>'
             )
         else:
             actions.append(
                 '<a href="' +
-                reverse('core:ssh_enable', args=[obj.device_id]) +
+                reverse('core:ssh_enable', args=[obj.pk]) +
                 '">Enable</a>'
-            )
-        if obj.device_id:
-            actions.append(
-                '<a href="' +
-                reverse(
-                    'management:core_devicemodel_change', args=[obj.device_id]
-                ) +
-                '">View device</a>'
             )
 
         return format_html('&nbsp;|&nbsp;'.join(actions))
@@ -188,6 +163,6 @@ class MyAdminSite(admin.AdminSite):
 admin_site = MyAdminSite(name='management')
 
 
-admin_site.register(DeviceModel, DeviceAdminModel)
+admin_site.register(HostModel, HostAdminModel)
 admin_site.register(SSHKeyModel, SSHKeyAdminModel)
 admin_site.register(SSHConnectionModel, SSHConnectionAdminModel)

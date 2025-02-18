@@ -14,44 +14,54 @@ var devices_table = {
     },
     render: function(){
         $.getJSON(devices_table.url, {}, function(resp){
-            if (resp.devices.length == 0) {
+            if (resp.hosts.length == 0) {
                 $('#devices tbody').html(
                     '<tr><td colspan="6" class="text-center">' +
-                    '<div class="alert alert-primary">No devices found. <a href="' + 
+                    '<div class="alert alert-primary">No hosts found. <a href="' + 
                     devices_table.ssh_configurations_url + 
-                    '">Go and register</a> your first device.</div></td></tr>'
+                    '">Go and create a connection</a> to your first host.</div></td></tr>'
                 );
             } else {
                 var view = '';
-                for (var i = 0; i < resp.devices.length; i++){
-                    var device = resp.devices[i],
-                        status_class;
+                for (var i = 0; i < resp.hosts.length; i++){
+                    var host = resp.hosts[i];
                     
-                    if (device.status == 'connected'){
-                        status_class = 'bg-success';
-                    } else if (device.status == 'disconnected'){
-                        status_class = 'bg-danger';
+                    view += '<tr>';
+                    view += '<td>';
+                    view += '<strong><a href="' + host.change_link + '">' + host.hostname + '</a></strong><br>';
+                    view += '<small>' + host.model + '</small>';
+                    view += '</td>';
+
+                    var state_class, state_text;
+
+                    if (host.status == 'enabled'){
+                        if (host.state == 'connected'){
+                            state_class = 'bg-success';
+                        } else {
+                            state_class = 'bg-danger';
+                        }
+                        state_text = host.state;
                     } else {
-                        status_class = 'bg-secondary';
+                        state_text = host.status;
+                        state_class = 'bg-secondary';
                     }
 
-                    view += '<tr>'
-                    view += '<td><a href="' + device.change_link + '">' + device.hostname + '</a></td>';
-                    view += '<td><span class="badge ' + status_class + '">' + device.status + '</span></td>';
+                    view += '<td><span class="badge ' + state_class + '">' + state_text + '</span></td>';
 
-                    var used_ram = (device.used_ram !== null) ? (device.used_ram / (1024 * 1024)).toFixed(2) : '--',
-                        total_ram = (device.total_ram !== null) ? (device.total_ram / (1024 * 1024)).toFixed(2) + ' MBi' : '--',
-                        ram_usage = (device.used_ram / device.total_ram) * 100,
-                        cpu_usage = (device.cpu_usage !== null) ? device.cpu_usage : '--',
-                        cpu_temperature = (device.cpu_temperature !== null) ? device.cpu_temperature : '--',
-                        used_storage = (device.used_storage !== null) ? (device.used_storage / (1024 * 1024 * 1024)).toFixed(2) : '--',
-                        total_storage = (device.total_storage !== null) ? (device.total_storage / (1024 * 1024 * 1024)).toFixed(2) + ' GBi' : '--',
-                        storage_usage = (device.used_storage / device.total_storage) * 100;
+                    var used_ram = (host.used_ram !== null) ? (host.used_ram / (1024 * 1024)).toFixed(2) : '--',
+                        total_ram = (host.total_ram !== null) ? (host.total_ram / (1024 * 1024)).toFixed(2) + ' MBi' : '--',
+                        ram_usage = (host.used_ram / host.total_ram) * 100,
+                        cpu_usage = (host.cpu_usage !== null) ? host.cpu_usage : '--',
+                        cpu_temperature = (host.cpu_temperature !== null) ? host.cpu_temperature : '--',
+                        used_storage = (host.used_storage !== null) ? (host.used_storage / (1024 * 1024 * 1024)).toFixed(2) : '--',
+                        total_storage = (host.total_storage !== null) ? (host.total_storage / (1024 * 1024 * 1024)).toFixed(2) + ' GBi' : '--',
+                        storage_usage = (host.used_storage / host.total_storage) * 100;
 
                     view += '<td><span class="' + devices_table.get_badge_class(ram_usage) + '">' + used_ram + ' / ' + total_ram + '</span></td>';
-                    view += '<td><span class="' + devices_table.get_badge_class(device.cpu_usage) + '">' + cpu_usage + '</span></td>';
-                    view += '<td><span class="' + devices_table.get_badge_class(device.cpu_temperature) + '">' + cpu_temperature + '</span></td>';
+                    view += '<td><span class="' + devices_table.get_badge_class(host.cpu_usage) + '">' + cpu_usage + '</span></td>';
+                    view += '<td><span class="' + devices_table.get_badge_class(host.cpu_temperature) + '">' + cpu_temperature + '</span></td>';
                     view += '<td><span class="' + devices_table.get_badge_class(storage_usage) + '">' + used_storage + ' / ' + total_storage + '</span></td>';
+
                     view += '</tr>';
                 }
 

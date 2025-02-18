@@ -1,29 +1,37 @@
 {% extends "admin/custom_change_form.html" %}
 
 
-{% load i18n static %}
+{% load i18n static management %}
+
 
 {% block extrastyle %}
     <link rel="stylesheet" href="{% static "css/custom.css" %}">
 {% endblock %}
 
+{% block menu-right %}
+    {% if connection.status == 'enabled' %}
+        {% if connection.state == 'connected' %}
+            <span class="badge bg-success" id="device-status">{{ connection.state }}</span>
+        {% else %}
+            <span class="badge bg-danger" id="device-status">{{ connection.state }}</span>
+        {% endif %}
+    {% else %}
+        <span class="badge bg-secondary" id="device-status">{{ connection.status }}</span>
+    {% endif %}    
+{% endblock %}
 
 {% block content %}
-    <div class="clearfix">
-        <div class="pull-left">
-            <strong class="d-inline-block" id="hostname">{{ hostname }}</strong>
-            <span class="badge {{ status_class }} mb-2" id="device-status">{{ status }}</span>
-        </div>
-        <div class="pull-right">
-            <a href="{% url 'admin:core_sshconnectionmodel_change' original.id %}" target="_balnk">SSH Configuration</a>
-        </div>
-    </div>
     <div class="alert alert-danger" id="error-message" style="display: none;"></div>
     <div class="row">
         <div class="col-md-6">
             <div class="card text-white mb-3">
                 <div class="card-header">
-                    Platform
+                    <div class="float-start">
+                        Platform
+                    </div>
+                    <div class="float-end">
+                        <a href="{% url 'management:core_sshconnectionmodel_change' original.id %}">Connection</a>
+                    </div>
                 </div>
                 <div class="card-body p-0">
                     {% if platform %}
@@ -118,10 +126,20 @@
                             </td>
                         </tr>
                         <tr>
+                            <th>Min frequency</th>
+                            <td>
+                                {% if min_cpu_frequency %}
+                                    {{ min_cpu_frequency | floatformat }} MHz
+                                {% else %}
+                                    --
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
                             <th>Max frequency</th>
                             <td>
                                 {% if max_cpu_frequency %}
-                                    {{ max_cpu_frequency }} MHz
+                                    {{ max_cpu_frequency | floatformat }} MHz
                                 {% else %}
                                     --
                                 {% endif %}
@@ -164,7 +182,7 @@
                             <th>Total RAM</th>
                             <td>
                                 {% if total_ram %}
-                                    {{ total_ram }} MBi
+                                    {{ total_ram | bytes_to_mbi }} MBi
                                 {% else %}
                                     --
                                 {% endif %}
@@ -192,13 +210,11 @@
     </div>
     <div class="card text-white mb-3">
         <div class="card-header">
-            <div class="clearfix">
-                <div class="pull-left">
-                    Storage
-                </div>
-                <div class="pull-right">
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#partitions-modal">Partitions</a>
-                </div>
+            <div class="float-start">
+                Storage
+            </div>
+            <div class="float-end">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#partitions-modal">Partitions</a>
             </div>
         </div>
         <div class="card-body p-0">
@@ -294,8 +310,8 @@
     <script src="{% static "js/device_info.js" %}"></script>
     <script>
         $(function(){
-            device_details.url = "{% url 'core:device_info' device_id %}";
-            device_details.usage_url = "{% url 'core:device_usage' device_id %}";
+            device_details.url = "{% url 'core:host_runtime' host_id %}";
+            device_details.usage_url = "{% url 'core:host_runtime_history' host_id %}";
             device_details.render(true);
 
             /*

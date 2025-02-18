@@ -123,16 +123,21 @@
                 {% block nav-breadcrumbs %}
                     <div class="navbar bg-secondary" data-bs-theme="dark" id="breadcrumb-navbar">
                         <div class="container">
-                            {% block breadcrumbs %}
-                                <ol class="breadcrumb">
-                                    <li class="breadcrumb-item">
-                                        <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
-                                    </li>
-                                    {% if title %}
-                                        <li class="breadcrumb-item active">{{ title }}</li>
-                                    {% endif %}
-                                </ol>
-                            {% endblock %}
+                                <div class="float-start">
+                                    {% block breadcrumbs %}
+                                        <ol class="breadcrumb">
+                                            <li class="breadcrumb-item">
+                                                <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+                                            </li>
+                                            {% if title %}
+                                                <li class="breadcrumb-item active">{{ title }}</li>
+                                            {% endif %}
+                                        </ol>
+                                    {% endblock %}
+                                </div>
+                                <div class="float-end">
+                                    {% block menu-right %}{% endblock %}
+                                </div>
                         </div>
                     </div>
                 {% endblock %}

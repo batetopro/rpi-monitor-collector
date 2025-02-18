@@ -50,7 +50,7 @@ var device_details = {
             device_details.total_ram = resp.total_ram;
 
             device_details.show_hostname(resp.hostname);
-            device_details.show_status(resp.status);
+            device_details.show_status(resp.connection.status, resp.connection.state);
             device_details.show_cpu_temperature(resp.cpu_temperature);
             device_details.show_cpu_usage(resp.cpu_usage);
             device_details.show_cpu_frequency(resp.cpu_frequency);
@@ -68,7 +68,7 @@ var device_details = {
 
             setTimeout(function(){
                 device_details.render(false);
-            }, 5000);
+            }, 1000);
         });
     },
 
@@ -192,7 +192,6 @@ var device_details = {
             if (i < partitions.length - 1){
                 view += '<hr/>';
             }
-            console.log(partition);
         }
 
         $('#partitions').html(view);
@@ -289,15 +288,18 @@ var device_details = {
             $('#network-sent').text('--');
         }
     },
-    show_status: function(status){
-        if (status == 'connected'){
-            $('#device-status').addClass('bg-success').removeClass('bg-danger').removeClass('bg-secondary');
-        } else if (status == 'disconnected'){
-            $('#device-status').addClass('bg-danger').removeClass('bg-success').removeClass('bg-secondary');
+    show_status: function(connection_status, connection_state){
+        if (connection_status == 'enabled'){
+            if (connection_state == 'connected'){
+                $('#device-status').addClass('bg-success').removeClass('bg-danger').removeClass('bg-secondary');
+            } else {
+                $('#device-status').addClass('bg-danger').removeClass('bg-success').removeClass('bg-secondary');
+            }
+            $('#device-status').text(connection_state);
         } else {
             $('#device-status').addClass('bg-secondary').removeClass('bg-success').removeClass('bg-danger');
+            $('#device-status').text(connection_status);
         }
-        $('#device-status').text(status);
     },
     show_swap_memory: function(used_swap, total_swap){
         if (used_swap !== null) {
@@ -411,7 +413,7 @@ var device_usage = {
             // TODO: make this better
             setTimeout(function(){
                 device_usage.build()
-            }, 5000)
+            }, 1000)
         });
     },
     build_cpu_chart: function(time_saved, cpu_usage, cpu_temperature){

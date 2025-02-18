@@ -7,7 +7,10 @@ from django.utils.timezone import now
 
 
 from collector.ssh_collector import SSHCollector
-from core.models import DeviceModel, DeviceUsageModel
+from core.models import SSHConnectionModel
+
+
+from core.models import HostRuntimeModel
 
 
 class Command(BaseCommand):
@@ -17,48 +20,48 @@ class Command(BaseCommand):
         pass
         # parser.add_argument("poll_ids", nargs="+", type=int)
 
-    def get_device_collector(self, device):
-        return SSHCollector(device)
+    def clean_old_usage(self):
+        HostRuntimeModel.objects.\
+            filter(time_saved__lt=now() - datetime.timedelta(days=2)).\
+            delete()
 
-    def get_devices(self):
-        result = []
-        for device in DeviceModel.objects.filter(ssh_conf__status='enabled'):
-            result.append(device)
-        return result
+    def get_enabled_connections(self):
+        return SSHConnectionModel.objects.filter(status='enabled')
 
     def handle(self, *args, **options):
         collectors = dict()
 
-        for device in self.get_devices():
-            collectors[device.id] = self.get_device_collector(device)
-            collectors[device.id].run()
+        for conn in self.get_enabled_connections():
+            collector = SSHCollector(conn.pk)
+            collectors[conn.pk] = collector
+            collector.run()
 
         while True:
             try:
-                DeviceUsageModel.objects.\
-                    filter(time_saved__lt=now() - datetime.timedelta(days=2)).\
-                    delete()
+                self.clean_old_usage()
 
                 time.sleep(10)
 
-                deleted_devices = set(collectors.keys())
-                new_devices = []
+                disabled = set(collectors.keys())
+                newly_enabled = []
 
-                for device in self.get_devices():
-                    if device.id not in collectors:
-                        new_devices.append(device)
-                    elif device.id in deleted_devices:
-                        deleted_devices.remove(device.id)
+                for connection in self.get_enabled_connections():
+                    if connection.pk not in collectors:
+                        newly_enabled.append(connection.pk)
+                    elif connection.pk in disabled:
+                        disabled.remove(connection.pk)
 
-                for device in new_devices:
-                    collectors[device.id] = self.get_device_collector(device)
-                    collectors[device.id].run()
+                for connection_id in disabled:
+                    collectors[connection_id].stop()
+                    del collectors[connection_id]
 
-                for device_id in deleted_devices:
-                    collectors[device_id].stop()
-                    del collectors[device_id]
+                for connection_id in newly_enabled:
+                    collector = SSHCollector(connection_id)
+                    collectors[connection_id] = collector
+                    collector.run()
 
             except KeyboardInterrupt:
                 for collector in collectors.values():
                     collector.stop()
+
                 break

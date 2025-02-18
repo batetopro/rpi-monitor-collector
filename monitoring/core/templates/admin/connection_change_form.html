@@ -1,0 +1,11 @@
+{% extends "admin/change_form.html" %}
+{% block object-tools-items %}
+
+    {{ block.super }}
+
+    {% if host_id %}
+        <li>
+            <a href="{% url "management:core_hostmodel_change" host_id %}">Host</a>
+        </li>
+    {% endif %}
+{% endblock %}

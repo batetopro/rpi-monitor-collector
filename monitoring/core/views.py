@@ -4,113 +4,47 @@ from io import StringIO
 
 
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib import messages
 from django.urls import reverse
 from django.http.response import HttpResponse, HttpResponseRedirect, \
     JsonResponse
 from django.utils.timezone import now
 
 
-from core.models import DeviceModel, DeviceUsageModel, HostInfoModel, \
-    SSHConnectionModel
+from core.host import HostRegistry
+from core.models import HostRuntimeModel, SSHConnectionModel
+from core.connections.ssh import SSHConnection
 
 
 @staff_member_required
-def devices(request):
+def hosts(request):
     result = {
-        'devices': [],
+        'hosts': HostRegistry.get_hosts(),
     }
-
-    for device in DeviceModel.objects.\
-            select_related('host_info', 'ssh_conf').all():
-
-        entry = {
-            'device_id': device.id,
-            'change_link': reverse(
-                'management:core_devicemodel_change',
-                args=(device.id, )
-            ),
-            'status': device.status,
-            'used_ram': device.used_ram,
-            'cpu_usage': device.cpu_usage,
-            'cpu_temperature': device.cpu_temperature,
-            'total_storage': device.disk_space_total,
-            'used_storage': device.disk_space_used,
-        }
-
-        try:
-            entry['hostname'] = device.host_info.hostname
-            entry['total_ram'] = device.host_info.total_ram
-        except HostInfoModel.DoesNotExist:
-            entry['hostname'] = device.ssh_conf.hostname
-            entry['total_ram'] = None
-
-        result["devices"].append(entry)
 
     return JsonResponse(result, safe=False)
 
 
 @staff_member_required
-def device_info(request, device_id):
-    device = DeviceModel.objects.get(pk=device_id)
-
-    result = {
-        'device_id': device_id,
-        'status': device.status,
-        'cpu_frequency': device.cpu_frequency,
-        'cpu_temperature': device.cpu_temperature,
-        'cpu_usage': device.cpu_usage,
-        'disk_io_read_bytes': device.disk_io_read_bytes,
-        'disk_io_write_bytes': device.disk_io_write_bytes,
-        'disk_partitions': device.disk_partitions,
-        'disk_space_available': device.disk_space_available,
-        'disk_space_total': device.disk_space_total,
-        'disk_space_used': device.disk_space_used,
-        'error_message': device.message,
-        'network_io_received_bytes': device.net_io_bytes_recv,
-        'network_io_sent_bytes': device.net_io_bytes_sent,
-        'used_ram': device.used_ram,
-        'used_swap': device.used_swap,
-        'total_swap': device.total_swap,
-    }
-
-    if device.time_on_host:
-        result['time_on_host'] = device.time_on_host.timestamp()
-    else:
-        result['time_on_host'] = None
-
-    if device.last_seen:
-        result['last_seen'] = device.last_seen.timestamp()
-    else:
-        result['last_seen'] = None
-
-    if device.up_since:
-        result['up_since'] = device.up_since.timestamp()
-        if device.time_on_host:
-            result['up_for'] = \
-                round((device.time_on_host - device.up_since).total_seconds())
-        else:
-            result['up_for'] = None
-    else:
-        result['up_since'] = None
-        result['up_for'] = None
-
-    try:
-        host_info = device.host_info
-        result['hostname'] = host_info.hostname
-        result['total_ram'] = host_info.total_ram
-    except HostInfoModel.DoesNotExist:
-        result['hostname'] = device.ssh_conf.hostname
-        result['total_ram'] = None
-
+def host(request, host_id):
+    result = HostRegistry.get_host(host_id)
     return JsonResponse(result, safe=False)
 
 
 @staff_member_required
-def device_usage(request, device_id):
+def host_runtime(request, host_id):
+    return JsonResponse(
+        HostRegistry.get_runtime(host_id),
+        safe=False
+    )
+
+
+@staff_member_required
+def host_runtime_history(request, host_id):
     # Here a timestamp is optional
 
-    data = DeviceUsageModel.objects.filter(
-            device_id=device_id,
+    data = HostRuntimeModel.objects.filter(
+            host_id=host_id,
             time_saved__gt=now() - datetime.timedelta(minutes=30)
         ).\
         values_list(
@@ -161,4 +95,24 @@ def ssh_connection_enable(request, connection_id):
     connection.status = 'enabled'
     connection.save()
 
+    if connection.status != 'enabled':
+        messages.add_message(
+            request,
+            messages.ERROR,
+            "SSH connection could not be enabled."
+        )
+        return HttpResponseRedirect(
+            reverse(
+                'management:core_sshconnectionmodel_change',
+                args=(connection_id, )
+            )
+        )
+
+    return HttpResponseRedirect(request.META["HTTP_REFERER"])
+
+
+@staff_member_required
+def ssh_connection_deploy(request, connection_id):
+    connection = SSHConnection(connection_id)
+    connection.deploy()
     return HttpResponseRedirect(request.META["HTTP_REFERER"])
