@@ -851,6 +851,9 @@ var network_interfaces = {
     url: undefined,
     build: function(){
         network_interfaces.load();
+        $('#net-interfaces-refresh').on('click', function(){
+            network_interfaces.load();
+        });
     },
     load: function(){
         $.getJSON(network_interfaces.url, {}, function(resp){
@@ -935,20 +938,13 @@ var network_interfaces = {
                     
                     view += '</div>';
                     view += '</div>';
+                    view += '</div>';
                 }
 
                 view += '</div>';
             }
             
             $('#network-interfaces').html(view);
-
-            setTimeout(
-                function(){
-                    network_interfaces.load();
-                },
-                60000
-            )
-
         });
     }
 };
