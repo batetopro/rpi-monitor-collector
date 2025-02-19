@@ -30,7 +30,7 @@ RUN python -m venv /py && \
         mkdir -p /vol/web/static
 
 RUN chown -R rpi-manager:rpi-manager /vol && \
-    chmod -R 755 /vol
+    chmod -R 0755 /vol
 
 ENV PATH="/py/bin:$PATH"
 
