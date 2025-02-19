@@ -26,13 +26,15 @@ var devices_table = {
                 for (var i = 0; i < resp.hosts.length; i++){
                     var host = resp.hosts[i];
                     
-                    view += '<tr>';
-                    view += '<td>';
-                    view += '<strong><a href="' + host.change_link + '">' + host.hostname + '</a></strong><br>';
-                    view += '<small>' + host.model + '</small>';
-                    view += '</td>';
-
-                    var state_class, state_text;
+                    var state_class, state_text,
+                        used_ram = (host.used_ram !== null) ? (host.used_ram / (1024 * 1024)).toFixed(2) : '--',
+                        total_ram = (host.total_ram !== null) ? (host.total_ram / (1024 * 1024)).toFixed(2) + ' MBi' : '--',
+                        ram_usage = (host.used_ram / host.total_ram) * 100,
+                        cpu_usage = (host.cpu_usage !== null) ? host.cpu_usage : '--',
+                        cpu_temperature = (host.cpu_temperature !== null) ? host.cpu_temperature : '--',
+                        used_storage = (host.used_storage !== null) ? (host.used_storage / (1024 * 1024 * 1024)).toFixed(2) : '--',
+                        total_storage = (host.total_storage !== null) ? (host.total_storage / (1024 * 1024 * 1024)).toFixed(2) + ' GBi' : '--',
+                        storage_usage = (host.used_storage / host.total_storage) * 100;
 
                     if (host.status == 'enabled'){
                         if (host.state == 'connected'){
@@ -45,23 +47,17 @@ var devices_table = {
                         state_text = host.status;
                         state_class = 'bg-secondary';
                     }
-
-                    view += '<td><span class="badge ' + state_class + '">' + state_text + '</span></td>';
-
-                    var used_ram = (host.used_ram !== null) ? (host.used_ram / (1024 * 1024)).toFixed(2) : '--',
-                        total_ram = (host.total_ram !== null) ? (host.total_ram / (1024 * 1024)).toFixed(2) + ' MBi' : '--',
-                        ram_usage = (host.used_ram / host.total_ram) * 100,
-                        cpu_usage = (host.cpu_usage !== null) ? host.cpu_usage : '--',
-                        cpu_temperature = (host.cpu_temperature !== null) ? host.cpu_temperature : '--',
-                        used_storage = (host.used_storage !== null) ? (host.used_storage / (1024 * 1024 * 1024)).toFixed(2) : '--',
-                        total_storage = (host.total_storage !== null) ? (host.total_storage / (1024 * 1024 * 1024)).toFixed(2) + ' GBi' : '--',
-                        storage_usage = (host.used_storage / host.total_storage) * 100;
-
+    
+                    view += '<tr>';
+                    view += '<td>';
+                    view += '<strong><a href="' + host.change_link + '">' + host.hostname + '</a></strong><br>';
+                    view += '<small>' + host.model + '</small>';
+                    view += '</td>';
                     view += '<td><span class="' + devices_table.get_badge_class(ram_usage) + '">' + used_ram + ' / ' + total_ram + '</span></td>';
                     view += '<td><span class="' + devices_table.get_badge_class(host.cpu_usage) + '">' + cpu_usage + '</span></td>';
                     view += '<td><span class="' + devices_table.get_badge_class(host.cpu_temperature) + '">' + cpu_temperature + '</span></td>';
                     view += '<td><span class="' + devices_table.get_badge_class(storage_usage) + '">' + used_storage + ' / ' + total_storage + '</span></td>';
-
+                    view += '<td><span class="badge ' + state_class + '">' + state_text + '</span></td>';
                     view += '</tr>';
                 }
 
