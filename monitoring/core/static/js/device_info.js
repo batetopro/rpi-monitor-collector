@@ -291,7 +291,7 @@ var device_details = {
             ],
             keys = Object.keys(io_counters);
 
-        var view = '<table class="table">';
+        var view = '<table class="table mb-0">';
         for(var i = 0; i < rows.length ;i++){
             var row = rows[i];
             view += '<tr>';

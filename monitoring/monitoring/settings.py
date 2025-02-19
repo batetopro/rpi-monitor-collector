@@ -146,3 +146,12 @@ if os.getenv('SCAN_NETWORKS', '').strip():
     SCAN_NETWORKS = os.getenv('SCAN_NETWORKS').split('|')
 else:
     SCAN_NETWORKS = []
+
+
+REDIS = {
+    'host': os.getenv('REDIS_HOST'),
+    'port': os.getenv('REDIS_PORT'),
+    'username': os.getenv('REDIS_USERNAME'),
+    'password': os.getenv('REDIS_PASSWORD'),
+    'db': os.getenv('REDIS_DB'),
+}
