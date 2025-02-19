@@ -274,7 +274,7 @@ var device_details = {
     },
     show_net_io_counters: function(io_counters){
         if (io_counters === null){
-            $('#network-io').html('<div class="alert bg-info">Information about netwrok I/O is not collected yet.</div>');
+            $('#network-io').html('<div class="alert bg-info">Information about network I/O is not collected yet.</div>');
             return;
         }
 
@@ -517,6 +517,9 @@ var device_usage = {
                         }
                     },
                     x: {
+                        type: 'linear',
+                        min: time_saved[0],
+                        max: time_saved[time_saved.length - 1],
                         grid: {
                             display: true,
                             drawOnChartArea: true,
@@ -524,12 +527,7 @@ var device_usage = {
                         },
                         ticks: {
                             callback: function(value, index) {
-                                if (index % 25 == 0){
-                                    return device_usage.format_time_saved(
-                                        this.getLabelForValue(value)
-                                    );
-                                }
-                                return null;
+                                return device_usage.format_time_saved(value);
                             },
                             autoSkip: false,
                             maxRotation: 0,
@@ -605,6 +603,9 @@ var device_usage = {
                         }
                     },
                     x: {
+                        type: 'linear',
+                        min: time_saved[0],
+                        max: time_saved[time_saved.length - 1],
                         grid: {
                             display: true,
                             drawOnChartArea: true,
@@ -612,12 +613,7 @@ var device_usage = {
                         },
                         ticks: {
                             callback: function(value, index) {
-                                if (index % 25 == 0){
-                                    return device_usage.format_time_saved(
-                                        this.getLabelForValue(value)
-                                    );
-                                }
-                                return null;
+                                return device_usage.format_time_saved(value);
                             },
                             autoSkip: false,
                             maxRotation: 0,
@@ -693,6 +689,9 @@ var device_usage = {
                         }
                     },
                     x: {
+                        type: 'linear',
+                        min: time_saved[0],
+                        max: time_saved[time_saved.length - 1],
                         grid: {
                             display: true,
                             drawOnChartArea: true,
@@ -700,12 +699,7 @@ var device_usage = {
                         },
                         ticks: {
                             callback: function(value, index) {
-                                if (index % 25 == 0){
-                                    return device_usage.format_time_saved(
-                                        this.getLabelForValue(value)
-                                    );
-                                }
-                                return null;
+                                return device_usage.format_time_saved(value);
                             },
                             autoSkip: false,
                             maxRotation: 0,
@@ -774,6 +768,9 @@ var device_usage = {
                         }
                     },
                     x: {
+                        type: 'linear',
+                        min: time_saved[0],
+                        max: time_saved[time_saved.length - 1],
                         grid: {
                             display: true,
                             drawOnChartArea: true,
@@ -781,12 +778,7 @@ var device_usage = {
                         },
                         ticks: {
                             callback: function(value, index) {
-                                if (index % 25 == 0){
-                                    return device_usage.format_time_saved(
-                                        this.getLabelForValue(value)
-                                    );
-                                }
-                                return null;
+                                return device_usage.format_time_saved(value);
                             },
                             autoSkip: false,
                             maxRotation: 0,
@@ -836,8 +828,8 @@ var device_usage = {
 
             var columns = lines[i].split(',');
             result.time_saved.push(parseFloat(columns[0]));
-            result.cpu_usage.push(parseFloat(columns[1]));
-            result.cpu_temperature.push(parseFloat(columns[2]));
+            result.cpu_temperature.push(parseFloat(columns[1]));
+            result.cpu_usage.push(parseFloat(columns[2]));
             result.used_ram.push(parseFloat(columns[3]));
 
             var disc_io_read = parseFloat(columns[4]);
