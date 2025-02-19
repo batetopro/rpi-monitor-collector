@@ -1,6 +1,0 @@
-Host {{ hostname }}
-    HostName {{ hostname }}
-    User {{ username }}
-    Port {{ port }}
-    IdentityFile {{ identity_file }}
-    ConnectTimeout 10

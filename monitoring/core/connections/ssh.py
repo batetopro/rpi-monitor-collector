@@ -5,22 +5,14 @@ import uuid
 
 
 from django.conf import settings
-from django.template import Context, Template
 import filelock
-from paramiko import AutoAddPolicy, SSHClient, SSHConfig
+from paramiko import AutoAddPolicy, SSHClient
 
 
 from core.models import SSHConnectionModel
 
 
-template_path = os.path.join(
-    os.path.dirname(__file__),
-    'ssh_conf_template.txt'
-)
-
-
-with open(template_path, "r") as fp:
-    conf_template = Template(fp.read())
+CONNECTION_TIMEOUT = 10
 
 
 class SSHConnection:
@@ -49,7 +41,7 @@ class SSHConnection:
         self._client = SSHClient()
         self._client.set_missing_host_key_policy(AutoAddPolicy())
 
-        path = os.path.join(settings.BASE_DIR, f'ssh-{connection_id}.lock')
+        path = os.path.join(settings.LOCKS_PATH, f'ssh-{connection_id}.lock')
         self._lock = filelock.FileLock(path)
 
     def connect(self):
@@ -61,21 +53,15 @@ class SSHConnection:
         if not entity:
             return False
 
-        conf = self.get_ssh_conf(
-            username=entity.username,
-            hostname=entity.hostname,
-            port=entity.port,
-            identity_file=entity.ssh_key.identity_file
-        )
-
         self.lock.acquire(timeout=0)
 
         try:
             self.client.connect(
-                hostname=conf['hostname'],
-                port=conf['port'],
-                username=conf['user'],
-                timeout=float(conf['connecttimeout']),
+                hostname=entity.username,
+                port=entity.port,
+                username=entity.port,
+                timeout=CONNECTION_TIMEOUT,
+                key_filename=entity.ssh_key.identity_file,
             )
         except Exception as ex:
             if settings.DEBUG:
@@ -126,18 +112,6 @@ class SSHConnection:
         self.lock.release()
 
     @classmethod
-    def get_ssh_conf(cls, username, hostname, port, identity_file):
-        rendered: str = conf_template.render(
-            Context({
-                'username': username,
-                'hostname': hostname,
-                'port': port,
-                'identity_file': identity_file,
-            })
-        )
-        return SSHConfig.from_text(rendered).lookup(hostname)
-
-    @classmethod
     def test(cls, username, hostname, port, identity_file):
         signature = hashlib.sha1(
             '{}@{}:{}'.format(
@@ -146,19 +120,22 @@ class SSHConnection:
                 port
             ).encode()
         ).hexdigest()
-        path = os.path.join(settings.BASE_DIR, 'ssh-{}.lock'.format(signature))
+
+        path = os.path.join(
+            settings.LOCKS_PATH,
+            'ssh-{}.lock'.format(signature)
+        )
 
         lock = filelock.FileLock(path)
         with lock.acquire(timeout=0):
-            conf = cls.get_ssh_conf(username, hostname, port, identity_file)
-
             with SSHClient() as client:
                 client.set_missing_host_key_policy(AutoAddPolicy())
                 client.connect(
-                    hostname=conf['hostname'],
-                    port=conf['port'],
-                    username=conf['user'],
-                    timeout=float(conf['connecttimeout']),
+                    hostname=hostname,
+                    port=port,
+                    username=username,
+                    timeout=CONNECTION_TIMEOUT,
+                    key_filename=identity_file,
                 )
 
     @classmethod
