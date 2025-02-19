@@ -181,6 +181,9 @@ class HostRegistry:
             timestamp
         )
 
+        if not os.path.exists(settings.HISTORY_PATH):
+            os.makedirs(settings.HISTORY_PATH)
+
         path = os.path.join(
             settings.HISTORY_PATH,
             "host-{}-{}.log".format(host_id, timestamp.strftime("%Y-%m-%d"))
