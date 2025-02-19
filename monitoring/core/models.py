@@ -149,3 +149,6 @@ class NetworkInterfaceModel(models.Model):
     ip4_address = models.CharField(max_length=40, null=True)
     ip6_address = models.CharField(max_length=120, null=True)
     addresses = models.JSONField(null=True)
+
+    def __str__(self):
+        return f'{self.name}@{self.host.hostname}'
