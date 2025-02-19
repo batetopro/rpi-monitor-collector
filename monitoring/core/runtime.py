@@ -2,6 +2,7 @@ import json
 
 
 import redis
+import redis.exceptions
 
 
 from django.conf import settings
@@ -21,23 +22,28 @@ class RuntimeRegistry:
 
     @classmethod
     def clean_host_runtime(cls, host_id):
+        conn = cls.get_redis()
+
         try:
-            conn = cls.get_redis()
             conn.delete(f'host-runtime:{host_id}')
+        except redis.exceptions.ConnectionError:
+            pass
         finally:
             conn.close()
 
     @classmethod
     def get_host_runtime(cls, host_id):
-        try:
-            conn = cls.get_redis()
+        conn = cls.get_redis()
 
+        try:
             runtime = conn.hgetall(f'host-runtime:{host_id}')
 
             if not runtime:
                 return dict()
 
             return runtime
+        except redis.exceptions.ConnectionError:
+            return dict()
         finally:
             conn.close()
 
@@ -70,8 +76,11 @@ class RuntimeRegistry:
             'timestamp': timestamp.timestamp()
         }
 
+        conn = cls.get_redis()
+
         try:
-            conn = cls.get_redis()
             conn.hset(f'host-runtime:{host_id}', mapping=runtime)
+        except redis.exceptions.ConnectionError:
+            pass
         finally:
             conn.close()
