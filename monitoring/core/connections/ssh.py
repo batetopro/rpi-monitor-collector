@@ -57,9 +57,9 @@ class SSHConnection:
 
         try:
             self.client.connect(
-                hostname=entity.username,
+                hostname=entity.hostname,
                 port=entity.port,
-                username=entity.port,
+                username=entity.username,
                 timeout=CONNECTION_TIMEOUT,
                 key_filename=entity.ssh_key.identity_file,
             )
