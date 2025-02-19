@@ -3,13 +3,18 @@ from threading import Lock
 
 
 class Scheduler:
-    def __init__(self):
+    def __init__(self, available_tasks):
+        self._available_tasks = available_tasks
         self._lock = Lock()
         self._tasks = set()
         self._queue = list()
 
     def add_task(self, task, timestamp):
         with self._lock:
+            if task not in self._available_tasks:
+                # Do not allow
+                return
+
             if task in self._tasks:
                 # No re-scheduling available
                 return

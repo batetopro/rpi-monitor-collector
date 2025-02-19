@@ -38,8 +38,8 @@ class SSHCollector:
         self._channel = None
         self._connection_id = connection_id
         self._connection = SSHConnection(connection_id)
-        self._receiver = None
-        self._scheduler = Scheduler()
+        self._receiver = CollectorReceiver(self.connection_id)
+        self._scheduler = Scheduler(self.receiver._callbacks.keys())
         self._should_stop = False
         self._thread = None
 
@@ -69,7 +69,7 @@ class SSHCollector:
                 timestamp = time.time()
                 queries = self.scheduler.get_awaiting(timestamp)
 
-                while queries:
+                while queries and not self._should_stop:
                     query = queries.pop(0)
                     data = self.send_and_read(query)
                     self.receiver.receive(query, data)
