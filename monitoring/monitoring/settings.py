@@ -9,10 +9,12 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
-from dotenv import load_dotenv
+import configparser
 import os
 from pathlib import Path
+
+
+from dotenv import load_dotenv
 
 
 load_dotenv()
@@ -31,7 +33,8 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(int(os.getenv('DEBUG')))
 
-ALLOWED_HOSTS = []
+
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost|127.0.0.1').split('|')
 
 
 # Application definition
@@ -46,9 +49,6 @@ INSTALLED_APPS = [
 
     'core',
     'collector',
-
-    # Remove
-    'network',
 ]
 
 MIDDLEWARE = [
@@ -149,17 +149,16 @@ LOCKS_PATH = os.path.join(VOLUME_PATH, 'locks')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+redis_config = configparser.ConfigParser()
+redis_config.read('redis.ini')
+
+
 REDIS = {
-    'host': os.getenv('REDIS_HOST'),
-    'port': os.getenv('REDIS_PORT'),
-    'username': os.getenv('REDIS_USERNAME'),
-    'password': os.getenv('REDIS_PASSWORD'),
-    'db': os.getenv('REDIS_DB'),
+    'host': redis_config['client'].get('host'),
+    'port': redis_config['client'].getint('port'),
+    'username': redis_config['client'].get('username'),
+    'password': redis_config['client'].get('password'),
+    'db': redis_config['client'].getint('db'),
 }
 
-
-# Remove
-if os.getenv('SCAN_NETWORKS', '').strip():
-    SCAN_NETWORKS = os.getenv('SCAN_NETWORKS').split('|')
-else:
-    SCAN_NETWORKS = []
+LOCATION = os.getenv('LOCATION')

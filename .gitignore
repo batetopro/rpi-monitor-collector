@@ -172,6 +172,7 @@ cython_debug/
 
 
 my.ini
+redis.ini
 *.lock
 mariadb
 /data

@@ -1,0 +1,6 @@
+[client]
+host = redis
+port = 6379
+username = username
+password = changeme
+db = 0

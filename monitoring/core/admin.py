@@ -1,6 +1,7 @@
 import socket
 
 
+from django.conf import settings
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html, escape
@@ -57,6 +58,8 @@ class NetworkInterfaceAdminModel(admin.ModelAdmin):
     ]
     list_display_links = ["name", ]
     list_filter = ("host", )
+
+    ordering = ("host__hostname", "name")
 
     def has_add_permission(self, request, obj=None):
         return False
@@ -172,12 +175,15 @@ class SSHConnectionAdminModel(admin.ModelAdmin):
         return str(obj)
 
 
+hostname = socket.gethostname()
+
+
 class MyAdminSite(admin.AdminSite):
     # Text to put at the end of each page's <title>.
-    site_title = 'RPi management @ ' + socket.gethostname()
+    site_title = settings.LOCATION + '@' + hostname
 
     # Text to put in each page's <h1> (and above login form).
-    site_header = '@' + socket.gethostname()
+    site_header = settings.LOCATION + '@' + hostname
 
     # Text to put at the top of the admin index page.
     index_title = 'Monitor your raspberry'

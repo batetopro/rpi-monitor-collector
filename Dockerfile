@@ -27,9 +27,10 @@ RUN python -m venv /py && \
         mkdir -p /vol/web/history && \
         mkdir -p /vol/locks && \
         mkdir -p /vol/keys && \
-        mkdir -p /vol/web/static && \
-        chown -R rpi-manager:rpi-manager /vol && \
-        chmod -R 755 /vol
+        mkdir -p /vol/web/static
+
+RUN chown -R rpi-manager:rpi-manager /vol && \
+    chmod -R 755 /vol
 
 ENV PATH="/py/bin:$PATH"
 
