@@ -65,6 +65,7 @@ var device_details = {
             device_details.show_up_for(resp.up_for);
             device_details.show_error_message(resp.error_message);
             device_details.show_disk_partitions(resp.disk_partitions);
+            device_details.show_net_io_counters(resp.net_io_counters);
 
             setTimeout(function(){
                 device_details.render(false);
@@ -271,6 +272,44 @@ var device_details = {
             $('#up-since').text('--');
         }
     },
+    show_net_io_counters: function(io_counters){
+        if (io_counters === null){
+            $('#network-io').html('<div class="alert bg-info">Information about netwrok I/O is not collected yet.</div>');
+            return;
+        }
+
+        var rows = [
+                {'title': 'Interface', 'field': 'name'},
+                {'title': 'Sent bytes', 'field': 'bytes_sent'},
+                {'title': 'Sent packets', 'field': 'packets_sent'},
+                {'title': 'Drop-in', 'field': 'dropin'},
+                {'title': 'Errors in', 'field': 'errin'},
+                {'title': 'Received bytes', 'field': 'bytes_recv'},
+                {'title': 'Received packets', 'field': 'packets_recv'},
+                {'title': 'Drop out', 'field': 'dropout'},
+                {'title': 'Errors out', 'field': 'errout'},
+            ],
+            keys = Object.keys(io_counters);
+
+        var view = '<table class="table">';
+        for(var i = 0; i < rows.length ;i++){
+            var row = rows[i];
+            view += '<tr>';
+            view += '<th>' + row.title + '</th>';
+            
+            for(var j = 0; j < keys.length; j++){
+                if (row.field == 'name'){
+                    view += '<th>' + keys[j] + '</th>';
+                } else {
+                    view += '<td>' + io_counters[keys[j]][row.field] + '</td>';
+                }
+            }
+
+            view += '</tr>';
+        }
+        view += '</table>';
+        $('#network-io').html(view);
+    },
     show_network_io: function(received, sent){
         if (received !== null){
             $('#network-received').text(
@@ -287,7 +326,7 @@ var device_details = {
         } else {
             $('#network-sent').text('--');
         }
-    },
+    },    
     show_status: function(connection_status, connection_state){
         if (connection_status == 'enabled'){
             if (connection_state == 'connected'){

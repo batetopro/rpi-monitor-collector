@@ -123,6 +123,7 @@ class HostRegistry:
             'disk_space_used': host.disk_space_used,
             'network_io_received_bytes': host.net_io_bytes_recv,
             'network_io_sent_bytes': host.net_io_bytes_sent,
+            'net_io_counters': host.net_io_counters,
             'used_ram': host.used_ram,
             'used_swap': host.used_swap,
             'total_ram': host.total_ram,
@@ -177,7 +178,8 @@ class HostRegistry:
     def store_runtime(cls, host_id, cpu_usage, cpu_frequency, cpu_temperature,
                       time_on_host, disk_io_read_bytes, disk_io_write_bytes,
                       disk_space_available, disk_space_used, disk_space_total,
-                      disk_partitions, net_io_bytes_recv, net_io_bytes_sent,
+                      disk_partitions,
+                      net_io_bytes_recv, net_io_bytes_sent, net_io_counters,
                       used_ram, used_swap, total_swap):
 
         timestamp = now()
@@ -197,6 +199,7 @@ class HostRegistry:
             disk_io_write_bytes=disk_io_write_bytes,
             net_io_bytes_recv=net_io_bytes_recv,
             net_io_bytes_sent=net_io_bytes_sent,
+            net_io_counters=net_io_counters,
             time_on_host=time_on_host,
             last_seen=timestamp
         )

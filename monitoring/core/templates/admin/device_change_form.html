@@ -300,7 +300,7 @@
           <div class="dropdown-menu" style="">
             <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#net-interfaces-modal">Interfaces</a>
             <a class="dropdown-item" href="#">Ports</a>
-            <a class="dropdown-item" href="#">I/O</a>
+            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#net-io-modal">I/O</a>
           </div>
         </li>
     </ul>
@@ -364,7 +364,21 @@
           </div>
         </div>
     </div>
-
+    <div class="modal" id="net-io-modal">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Network I/O</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true"></span>
+              </button>
+            </div>
+            <div class="modal-body p-0" id="network-io">
+                <strong>Loading ...</strong>
+            </div>
+          </div>
+        </div>
+    </div>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="//momentjs.com/downloads/moment.js"></script>

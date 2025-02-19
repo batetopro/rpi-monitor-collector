@@ -103,6 +103,7 @@ class HostModel(models.Model):
     disk_io_write_bytes = models.PositiveBigIntegerField(null=True)
     net_io_bytes_recv = models.PositiveBigIntegerField(null=True)
     net_io_bytes_sent = models.PositiveBigIntegerField(null=True)
+    net_io_counters = models.JSONField(null=True)
     up_since = models.DateTimeField(null=True)
     time_on_host = models.DateTimeField(null=True)
     last_seen = models.DateTimeField(null=True)

@@ -82,6 +82,7 @@ class CollectorReceiver:
             disk_partitions=data['disk_partitions'],
             net_io_bytes_recv=data['net_io_bytes_recv'],
             net_io_bytes_sent=data['net_io_bytes_sent'],
+            net_io_counters=data['net_io_counters'],
             used_ram=data['ram'],
             used_swap=data['swap_used'],
             total_swap=data['swap_total']
