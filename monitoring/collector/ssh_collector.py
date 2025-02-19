@@ -108,9 +108,16 @@ class SSHCollector:
             time.sleep(.1)
             continue
 
-        # This should read first block, get content length,
-        # read blocks after that
-        data = self.channel.recv(2048)
+        data = bytearray()
+        resp = self.channel.recv(64)
+        length, resp = resp.split(b'\n', 1)
+        data.extend(resp)
+        length = int(length) - 64
+
+        while length > 0:
+            resp = self.channel.recv(2048)
+            length -= 2048
+            data.extend(resp)
 
         return data.decode()
 
