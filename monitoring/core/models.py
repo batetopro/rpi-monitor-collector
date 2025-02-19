@@ -85,28 +85,11 @@ class HostModel(models.Model):
     )
 
     hostname = models.CharField(max_length=255, null=True)
-    used_ram = models.PositiveBigIntegerField(null=True)
     total_ram = models.PositiveBigIntegerField(null=True)
-    used_swap = models.PositiveBigIntegerField(null=True)
-    total_swap = models.PositiveBigIntegerField(null=True)
     number_of_cpus = models.PositiveSmallIntegerField(null=False)
     min_cpu_frequency = models.FloatField(null=True)
-    cpu_frequency = models.FloatField(null=True)
     max_cpu_frequency = models.FloatField(null=True)
-    cpu_temperature = models.PositiveBigIntegerField(null=True)
-    cpu_usage = models.PositiveSmallIntegerField(null=True)
-    disk_partitions = models.JSONField(null=True)
-    disk_space_available = models.PositiveBigIntegerField(null=True)
-    disk_space_total = models.PositiveBigIntegerField(null=True)
-    disk_space_used = models.PositiveBigIntegerField(null=True)
-    disk_io_read_bytes = models.PositiveBigIntegerField(null=True)
-    disk_io_write_bytes = models.PositiveBigIntegerField(null=True)
-    net_io_bytes_recv = models.PositiveBigIntegerField(null=True)
-    net_io_bytes_sent = models.PositiveBigIntegerField(null=True)
-    net_io_counters = models.JSONField(null=True)
     up_since = models.DateTimeField(null=True)
-    time_on_host = models.DateTimeField(null=True)
-    last_seen = models.DateTimeField(null=True)
 
     def __str__(self):
         if self.hostname is None:

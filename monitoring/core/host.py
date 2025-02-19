@@ -163,27 +163,6 @@ class HostRegistry:
     def reset_runtime(cls, host_id):
         RuntimeRegistry.clean_host_runtime(host_id)
 
-        '''
-        HostModel.objects.filter(pk=host_id).update(
-            used_ram=None,
-            used_swap=None,
-            total_swap=None,
-            cpu_frequency=None,
-            cpu_temperature=None,
-            cpu_usage=None,
-            disk_partitions=None,
-            disk_space_available=None,
-            disk_space_total=None,
-            disk_space_used=None,
-            disk_io_read_bytes=None,
-            disk_io_write_bytes=None,
-            net_io_bytes_recv=None,
-            net_io_bytes_sent=None,
-            up_since=None,
-            time_on_host=None,
-        )
-        '''
-
     @classmethod
     def store_runtime(cls, host_id, cpu_usage, cpu_frequency, cpu_temperature,
                       time_on_host, disk_io_read_bytes, disk_io_write_bytes,
@@ -203,28 +182,6 @@ class HostRegistry:
             used_ram, used_swap, total_swap,
             timestamp
         )
-
-        '''
-        HostModel.objects.filter(pk=host_id).update(
-            used_ram=used_ram,
-            used_swap=used_swap,
-            total_swap=total_swap,
-            cpu_frequency=cpu_frequency,
-            cpu_temperature=cpu_temperature,
-            cpu_usage=cpu_usage,
-            disk_partitions=disk_partitions,
-            disk_space_available=disk_space_available,
-            disk_space_total=disk_space_total,
-            disk_space_used=disk_space_used,
-            disk_io_read_bytes=disk_io_read_bytes,
-            disk_io_write_bytes=disk_io_write_bytes,
-            net_io_bytes_recv=net_io_bytes_recv,
-            net_io_bytes_sent=net_io_bytes_sent,
-            net_io_counters=net_io_counters,
-            time_on_host=time_on_host,
-            last_seen=timestamp
-        )
-        '''
 
         HostRuntimeModel.objects.create(
             host_id=host_id,
