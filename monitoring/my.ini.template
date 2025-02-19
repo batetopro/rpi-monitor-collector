@@ -1,5 +1,7 @@
 [client]
-database = NAME
-user = USER
-password = PASSWORD
+database = rpi-management
+host = db
+port = 3306
+user = rpi-management
+password = changeme
 default-character-set = utf8

@@ -73,11 +73,7 @@ class HostRegistry:
         result = []
         for host in HostModel.objects.\
                 select_related('platform', 'connection').\
-                order_by(
-                    "-connection__status",
-                    "connection__state",
-                    "hostname"
-                ).\
+                order_by("hostname").\
                 all():
 
             runtime = RuntimeRegistry.get_host_runtime(host.pk)
@@ -185,12 +181,8 @@ class HostRegistry:
             timestamp
         )
 
-        path = os.path.join(settings.BASE_DIR, 'history')
-        if not os.path.exists(path):
-            os.makedirs(path)
-
         path = os.path.join(
-            path,
+            settings.HISTORY_PATH,
             "host-{}-{}.log".format(host_id, timestamp.strftime("%Y-%m-%d"))
         )
 

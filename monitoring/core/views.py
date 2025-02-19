@@ -54,8 +54,7 @@ def host_runtime_history(request, host_id):
     since = (current_time - datetime.timedelta(minutes=10)).timestamp()
 
     path = os.path.join(
-        settings.BASE_DIR,
-        'history',
+        settings.HISTORY_PATH,
         "host-{}-{}.log".format(host_id, current_time.strftime("%Y-%m-%d"))
     )
 

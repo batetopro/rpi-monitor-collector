@@ -1,7 +1,7 @@
 import time
 
 
-from django.core.management.base import BaseCommand
+from django.core.management import call_command, BaseCommand
 
 
 from collector.ssh_collector import SSHCollector
@@ -19,6 +19,9 @@ class Command(BaseCommand):
         return SSHConnectionModel.objects.filter(status='enabled')
 
     def handle(self, *args, **options):
+        call_command('wait_for_db')
+        call_command('wait_for_redis')
+
         collectors = dict()
 
         for conn in self.get_enabled_connections():

@@ -1,0 +1,46 @@
+version: '3.9'
+
+services:
+  app:
+    hostname: rpi-management
+    build: 
+      context: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./monitoring:/monitoring
+      - ./data:/vol/web
+      - ./keys:/vol/keys
+    command: >
+      sh -c  "python manage.py wait_for_redis &&
+              python manage.py wait_for_db && 
+              python manage.py migrate && 
+              python manage.py runserver 0.0.0.0:8000"
+    depends_on:
+      - db
+      - redis
+  collector:
+    build:
+      context: .
+    command: sh -c "python manage.py collect"
+    volumes:
+      - ./monitoring:/monitoring
+      - ./data:/vol/web
+      - ./keys:/vol/keys
+    depends_on:
+      - db
+      - redis
+  db:
+    image: mariadb
+    volumes:
+       - ./mariadb:/var/lib/mysql:Z
+    environment:
+      - MARIADB_RANDOM_ROOT_PASSWORD=yes
+      - MARIADB_DATABASE=rpi-management
+      - MARIADB_USER=rpi-management
+      - MARIADB_PASSWORD=changeme
+  redis:
+    image: redis
+    command: ["redis-server", "/etc/redis/redis.conf"]
+    volumes:
+      - ./monitoring/redis.conf:/etc/redis/redis.conf

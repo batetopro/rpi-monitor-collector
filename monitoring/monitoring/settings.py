@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(int(os.getenv('DEBUG')))
 
-ALLOWED_HOSTS = [os.getenv('HOSTNAME'),]
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -46,6 +46,8 @@ INSTALLED_APPS = [
 
     'core',
     'collector',
+
+    # Remove
     'network',
 ]
 
@@ -94,7 +96,7 @@ elif os.getenv('DB_BACKEND') == 'mysql':
     DATABASES['default'] = {
         'ENGINE': 'django.db.backends.mysql',
         "OPTIONS": {
-            "read_default_file": str(BASE_DIR / 'my.ini'),
+            "read_default_file": os.getenv('MYSQL_CONF'),
         },
     }
 
@@ -134,18 +136,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = os.getenv('STATIC_ROOT')
+
+VOLUME_PATH = os.getenv('VOLUME_PATH')
+STATIC_ROOT = os.path.join(VOLUME_PATH, 'web', 'static')
+HISTORY_PATH = os.path.join(VOLUME_PATH, 'web', 'history')
+LOCKS_PATH = os.path.join(VOLUME_PATH, 'locks')
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
-if os.getenv('SCAN_NETWORKS', '').strip():
-    SCAN_NETWORKS = os.getenv('SCAN_NETWORKS').split('|')
-else:
-    SCAN_NETWORKS = []
 
 
 REDIS = {
@@ -155,3 +156,10 @@ REDIS = {
     'password': os.getenv('REDIS_PASSWORD'),
     'db': os.getenv('REDIS_DB'),
 }
+
+
+# Remove
+if os.getenv('SCAN_NETWORKS', '').strip():
+    SCAN_NETWORKS = os.getenv('SCAN_NETWORKS').split('|')
+else:
+    SCAN_NETWORKS = []
