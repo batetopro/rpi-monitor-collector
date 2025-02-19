@@ -3,11 +3,12 @@ import socket
 
 from django.contrib import admin
 from django.urls import reverse
-from django.utils.html import format_html
+from django.utils.html import format_html, escape
 
 
 from core.host import HostRegistry
-from core.models import HostModel, SSHConnectionModel, SSHKeyModel
+from core.models import HostModel,  NetworkInterfaceModel, \
+    SSHConnectionModel, SSHKeyModel
 
 
 class SSHKeyAdminModel(admin.ModelAdmin):
@@ -48,6 +49,28 @@ class HostAdminModel(admin.ModelAdmin):
 
     def has_add_permission(self, request, obj=None):
         return False
+
+
+class NetworkInterfaceAdminModel(admin.ModelAdmin):
+    list_display = [
+        "host_link", "isup", "name", "ip4_address", "ip6_address",
+    ]
+    list_display_links = ["name", ]
+    list_filter = ("host", )
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    @admin.display(description="Host", ordering="host")
+    def host_link(self, obj):
+        link = reverse("management:core_hostmodel_change", args=[obj.host_id])
+        return format_html(f'<a href="{link}">{escape(obj.host.hostname)}</a>')
 
 
 class SSHConnectionAdminModel(admin.ModelAdmin):
@@ -164,5 +187,6 @@ admin_site = MyAdminSite(name='management')
 
 
 admin_site.register(HostModel, HostAdminModel)
+admin_site.register(NetworkInterfaceModel, NetworkInterfaceAdminModel)
 admin_site.register(SSHKeyModel, SSHKeyAdminModel)
 admin_site.register(SSHConnectionModel, SSHConnectionAdminModel)
