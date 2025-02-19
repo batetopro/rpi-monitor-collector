@@ -1,16 +1,11 @@
-import datetime
 import time
 
 
 from django.core.management.base import BaseCommand
-from django.utils.timezone import now
 
 
 from collector.ssh_collector import SSHCollector
 from core.models import SSHConnectionModel
-
-
-from core.models import HostRuntimeModel
 
 
 class Command(BaseCommand):
@@ -19,11 +14,6 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         pass
         # parser.add_argument("poll_ids", nargs="+", type=int)
-
-    def clean_old_usage(self):
-        HostRuntimeModel.objects.\
-            filter(time_saved__lt=now() - datetime.timedelta(days=2)).\
-            delete()
 
     def get_enabled_connections(self):
         return SSHConnectionModel.objects.filter(status='enabled')
@@ -38,8 +28,6 @@ class Command(BaseCommand):
 
         while True:
             try:
-                self.clean_old_usage()
-
                 time.sleep(10)
 
                 disabled = set(collectors.keys())

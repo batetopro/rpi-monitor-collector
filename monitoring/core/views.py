@@ -1,8 +1,8 @@
-import csv
 import datetime
-from io import StringIO
+import os
 
 
+from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.urls import reverse
@@ -13,7 +13,7 @@ from django.utils.timezone import now
 
 from core.connections.ssh import SSHConnection
 from core.host import HostRegistry
-from core.models import HostRuntimeModel, SSHConnectionModel
+from core.models import SSHConnectionModel
 from core.network_interface import NetworkInterfaceRegistry
 
 
@@ -50,43 +50,34 @@ def host_runtime(request, host_id):
 def host_runtime_history(request, host_id):
     # Here a timestamp is optional
 
-    data = HostRuntimeModel.objects.filter(
-            host_id=host_id,
-            time_saved__gt=now() - datetime.timedelta(minutes=10)
-        ).\
-        values_list(
-            'time_saved',
-            'cpu_usage',
-            'cpu_temperature',
-            'used_ram',
-            'disk_io_read_bytes',
-            'disk_io_write_bytes',
-            'net_io_bytes_recv',
-            'net_io_bytes_sent',
-        ).\
-        order_by('time_saved')
+    current_time = now()
+    since = (current_time - datetime.timedelta(minutes=10)).timestamp()
 
-    result = []
+    path = os.path.join(
+        settings.BASE_DIR,
+        'history',
+        "host-{}-{}.log".format(host_id, current_time.strftime("%Y-%m-%d"))
+    )
 
-    for row in data:
-        result.append((
-            row[0].timestamp(),
-            row[1],
-            row[2],
-            row[3],
-            row[4],
-            row[5],
-            row[6],
-            row[7]
-        ))
-
-    with StringIO() as buf:
-        writer = csv.writer(buf)
-        writer.writerows(result)
+    if not os.path.exists(path):
         return HttpResponse(
-            content=buf.getvalue().strip(),
+            content='',
             content_type='text/csv'
         )
+
+    rows = []
+    with open(path, "r") as fp:
+        for line in fp.readlines():
+            timestamp, _ = line.split(',', 1)
+            timestamp = float(timestamp)
+            if timestamp < since:
+                continue
+            rows.append(line)
+
+    return HttpResponse(
+        content=''.join(rows),
+        content_type='text/csv'
+    )
 
 
 @staff_member_required

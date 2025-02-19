@@ -1,12 +1,14 @@
 import datetime
 import json
+import os
 
 
+from django.conf import settings
 from django.urls import reverse
 from django.utils.timezone import now
 
 
-from core.models import HostModel, HostRuntimeModel
+from core.models import HostModel
 from core.runtime import RuntimeRegistry
 
 
@@ -183,14 +185,25 @@ class HostRegistry:
             timestamp
         )
 
-        HostRuntimeModel.objects.create(
-            host_id=host_id,
-            cpu_temperature=cpu_temperature,
-            cpu_usage=cpu_usage,
-            used_ram=used_ram,
-            disk_io_read_bytes=disk_io_read_bytes,
-            disk_io_write_bytes=disk_io_write_bytes,
-            net_io_bytes_recv=net_io_bytes_recv,
-            net_io_bytes_sent=net_io_bytes_sent,
-            time_saved=timestamp,
+        path = os.path.join(settings.BASE_DIR, 'history')
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        path = os.path.join(
+            path,
+            "host-{}-{}.log".format(host_id, timestamp.strftime("%Y-%m-%d"))
         )
+
+        with open(path, "a") as fp:
+            fp.write(
+                "{},{},{},{},{},{},{},{}\n".format(
+                    timestamp.timestamp(),
+                    cpu_temperature,
+                    cpu_usage,
+                    used_ram,
+                    disk_io_read_bytes,
+                    disk_io_write_bytes,
+                    net_io_bytes_recv,
+                    net_io_bytes_sent,
+                )
+            )

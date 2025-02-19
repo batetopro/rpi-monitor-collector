@@ -97,25 +97,6 @@ class HostModel(models.Model):
         return self.hostname
 
 
-class HostRuntimeModel(models.Model):
-    class Meta:
-        verbose_name = "Host Runtime"
-        verbose_name_plural = "Host Runtimes"
-
-    host = models.ForeignKey(
-        HostModel, on_delete=models.CASCADE, null=False
-    )
-
-    cpu_temperature = models.PositiveBigIntegerField(null=True)
-    cpu_usage = models.PositiveBigIntegerField(null=False)
-    used_ram = models.PositiveBigIntegerField(null=False)
-    disk_io_read_bytes = models.PositiveBigIntegerField(null=True)
-    disk_io_write_bytes = models.PositiveBigIntegerField(null=True)
-    net_io_bytes_recv = models.PositiveBigIntegerField(null=True)
-    net_io_bytes_sent = models.PositiveBigIntegerField(null=True)
-    time_saved = models.DateTimeField(null=False, db_index=True)
-
-
 class NetworkInterfaceModel(models.Model):
     class Meta:
         verbose_name = "Network Interface"

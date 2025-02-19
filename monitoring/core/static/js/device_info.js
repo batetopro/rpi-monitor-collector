@@ -827,7 +827,7 @@ var device_usage = {
                 'network_io_read': [],
                 'network_io_write': [],
             },
-            lines = resp.split('\r\n');
+            lines = resp.split('\n');
 
         for(var i = 0; i < lines.length; i++){
             if (!lines[i]){
