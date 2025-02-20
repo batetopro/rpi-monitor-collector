@@ -371,24 +371,40 @@ var device_details = {
                 {'title': 'Errors out', 'field': 'errout'},
             ],
             keys = Object.keys(io_counters);
+        
+        
+        var view = '<div class="clearfix"><div class="float-start">';
+        view += '<table class="table mb-0">'
+        for(var i = 0; i < rows.length; i++){
+            view += '<tr class="table-primary"><th class="text-center" width="140">' + rows[i].title + '</th?</tr>'
+        }
+        view += '</table></div>'
+        view += '<div class="network-counters">'
+        view += '<table class="table mb-0">'
 
-        var view = '<table class="table mb-0">';
         for(var i = 0; i < rows.length ;i++){
             var row = rows[i];
-            view += '<tr>';
-            view += '<th>' + row.title + '</th>';
             
+            if (row.field == 'name'){
+                view += '<tr class="table-primary">';
+            } else {
+                view += '<tr>';
+            }
+
             for(var j = 0; j < keys.length; j++){
                 if (row.field == 'name'){
-                    view += '<th>' + keys[j] + '</th>';
+                    view += '<th class="text-center" width="400">' + keys[j] + '</th>';
                 } else {
-                    view += '<td>' + io_counters[keys[j]][row.field] + '</td>';
+                    view += '<td class="text-center">' + io_counters[keys[j]][row.field] + '</td>';
                 }
             }
 
             view += '</tr>';
         }
-        view += '</table>';
+
+        view += '</table></div>'
+        view += '</div>'
+
         $('#network-io').html(view);
     },
     show_network_io: function(received, sent){
@@ -495,6 +511,10 @@ var device_details = {
 }
 
 var device_usage = {
+    primary_color: 'rgb(39,128,227)',
+    secondary_color: 'rgb(55,58,60)',
+    grid_color: '#e9ecef',
+
     cpu_chart: undefined,
     current_disc_io_read: undefined,
     current_disc_io_write: undefined,
@@ -544,7 +564,7 @@ var device_usage = {
             return;
         }
 
-        $('#cpu-performance').html('<div style="height: 206px"><canvas id="cpu-diagram"></canvas></div>');
+        $('#cpu-performance').html('<div style="height: 200px"><canvas id="cpu-diagram"></canvas></div>');
 
         const data = {
             labels: time_saved,
@@ -552,14 +572,14 @@ var device_usage = {
                 {
                     label: 'CPU Usage %',
                     data: cpu_usage,
-                    borderColor: 'blue',
+                    borderColor: device_usage.primary_color,
                     // borderColor: 'rgb(75, 192, 192)',
                     // tension: 0.1
                 },
                 {
                     label: 'CPU Temperature C',
                     data: cpu_temperature,
-                    borderColor: 'red',
+                    borderColor: device_usage.secondary_color,
                     // borderColor: 'rgb(75, 192, 192)',
                     // tension: 0.1
                 }
@@ -590,7 +610,7 @@ var device_usage = {
                         grid: {
                             display: true,
                             drawOnChartArea: true,
-                            color: '#444',
+                            color: device_usage.grid_color,
                         },
                         ticks: {
                             stepSize: 10,
@@ -607,7 +627,7 @@ var device_usage = {
                         grid: {
                             display: true,
                             drawOnChartArea: true,
-                            color: '#444',
+                            color: device_usage.grid_color,
                         },
                         ticks: {
                             callback: function(value, index) {
@@ -630,7 +650,7 @@ var device_usage = {
             return;
         }
 
-        $('#disc-performance').html('<div style="height: 206px"><canvas id="disc-diagram"></canvas></div>');
+        $('#disc-performance').html('<div style="height: 200px"><canvas id="disc-diagram"></canvas></div>');
 
         const data = {
             labels: Array.from(time_saved).slice(1),
@@ -638,14 +658,14 @@ var device_usage = {
                 {
                     label: 'Read',
                     data: read_io,
-                    borderColor: 'blue',
+                    borderColor: device_usage.primary_color,
                     // borderColor: 'rgb(75, 192, 192)',
                     // tension: 0.1
                 },
                 {
                     label: 'Write',
                     data: write_io,
-                    borderColor: 'red',
+                    borderColor: device_usage.secondary_color,
                     // borderColor: 'rgb(75, 192, 192)',
                     // tension: 0.1
                 },
@@ -676,7 +696,7 @@ var device_usage = {
                         grid: {
                             display: true,
                             drawOnChartArea: true,
-                            color: '#444',
+                            color: device_usage.grid_color,
                         },
                         ticks: {
                             autoSkip: false,
@@ -693,7 +713,7 @@ var device_usage = {
                         grid: {
                             display: true,
                             drawOnChartArea: true,
-                            color: '#444',
+                            color: device_usage.grid_color,
                         },
                         ticks: {
                             callback: function(value, index) {
@@ -717,7 +737,7 @@ var device_usage = {
             return;
         }
 
-        $('#network-performance').html('<div style="height: 206px"><canvas id="network-diagram"></canvas></div>');
+        $('#network-performance').html('<div style="height: 200px"><canvas id="network-diagram"></canvas></div>');
 
         const data = {
             labels: Array.from(time_saved).slice(1),
@@ -725,14 +745,14 @@ var device_usage = {
                 {
                     label: 'Received',
                     data: received,
-                    borderColor: 'blue',
+                    borderColor: device_usage.primary_color,
                     // borderColor: 'rgb(75, 192, 192)',
                     // tension: 0.1
                 },
                 {
                     label: 'Transmitted',
                     data: sent,
-                    borderColor: 'red',
+                    borderColor: device_usage.secondary_color,
                     // borderColor: 'rgb(75, 192, 192)',
                     // tension: 0.1
                 },
@@ -761,7 +781,7 @@ var device_usage = {
                         grid: {
                             display: true,
                             drawOnChartArea: true,
-                            color: '#444',
+                            color: device_usage.grid_color,
                         },
                         ticks: {
                             autoSkip: false,
@@ -779,7 +799,7 @@ var device_usage = {
                         grid: {
                             display: true,
                             drawOnChartArea: true,
-                            color: '#444',
+                            color: device_usage.grid_color,
                         },
                         ticks: {
                             callback: function(value, index) {
@@ -802,7 +822,7 @@ var device_usage = {
             return;
         }
 
-        $('#ram-performance').html('<div style="height: 206px"><canvas id="ram-diagram"></canvas></div>');
+        $('#ram-performance').html('<div style="height: 200px"><canvas id="ram-diagram"></canvas></div>');
 
         const data = {
             labels: Array.from(time_saved).slice(1),
@@ -810,7 +830,7 @@ var device_usage = {
                 {
                     label: 'Used RAM MBi',
                     data: used_ram,
-                    borderColor: 'blue',
+                    borderColor: device_usage.primary_color,
                     // borderColor: 'rgb(75, 192, 192)',
                     // tension: 0.1
                 },
@@ -841,7 +861,7 @@ var device_usage = {
                         grid: {
                             display: true,
                             drawOnChartArea: true,
-                            color: '#444',
+                            color: device_usage.grid_color,
                         },
                         ticks: {
                             autoSkip: false,
@@ -858,7 +878,7 @@ var device_usage = {
                         grid: {
                             display: true,
                             drawOnChartArea: true,
-                            color: '#444',
+                            color: device_usage.grid_color,
                         },
                         ticks: {
                             callback: function(value, index) {
@@ -977,88 +997,55 @@ var network_interfaces = {
             if (resp.length == 0){
                 view = '<div class="alert bg-info">Information about network interfaces is not collected yet.</div>';
             } else {
-                var view = '<div class="accordion" id="network-interfaces-accordion">';
+                var view = '';
 
                 for (var i = 0; i < resp.length; i++){
                     var interface = resp[i];
-
+                    view += '<div class="clearfix">';
+                    view += '<div class="float-start"><h4>' + interface.name + '</h4></div>'
                     if (interface.isup) {
-                        var button_class = 'bg-info';
+                        view += '<div class="float-end"><span class="badge bg-success">UP</span></div>';
                     } else {
-                        var button_class = 'bg-secondary';
+                        view += '<div class="float-end"><span class="badge bg-danger">DOWN</span></div>';
                     }
-
-                    if (interface.ip4_address){
-                        var ip4_address = interface.ip4_address;
-                    } else {
-                        var ip4_address = '--';
-                    }
-
-                    if (interface.ip6_address){
-                        var ip6_address = interface.ip6_address;
-                    } else {
-                        var ip6_address = '--';
-                    }
-
-                    view += '<div class="accordion-item">';
-                    view += '<h2 class="accordion-header" id="heading-ni-' + i + '">';
-                    view += '<button class="accordion-button ' + button_class + ' text-white  collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-ni-' + i + '" aria-expanded="false" aria-controls="collapse-ni-' + i + '">';
-                    view += interface.name + ' - ' + ip4_address;
-                    view += '</button>';
-                    view += '</h2>';
                     
-                    view += '<div id="collapse-ni-' + i + '" class="accordion-collapse collapse p-0" aria-labelledby="heading-ni-' + i + '" data-bs-parent="#network-interfaces-accordion" style="">';
-                    
-                    view += '<div class="accordion-body p-0">';
-
-                    view += '<table class="table m-0">';
-                    view += '<tr><td width="140">Status</td><td>';
-                    if (interface.isup) {
-                        view += '<span class="badge bg-success">UP</span>';
-                    } else {
-                        view += '<span class="badge bg-danger">DOWN</span>';
-                    }
-                    view += '</td></tr>';
-                    view += '<tr><td>IP4</td><td>' + ip4_address + '</td></tr>';
-                    view += '<tr><td>IP6</td><td>' + ip6_address + '</td></tr>';
-                    view += '<tr><td>MTU</td><td>' + interface.mtu + '</td></tr>';
-                    view += '<tr><td>Duplex</td><td>' + interface.duplex + '</td></tr>';
-                    view += '<tr><td>Speed</td><td>' + interface.speed + '</td></tr>';
-                    view += '</table>'
+                    view += '<table class="table mb-0">';
+                    view += '<tr>';
+                    view += '<td>MTU</td><th>' + interface.mtu + '</th>';
+                    view += '<td>Spped</td><th>' + interface.speed + '</th>';
+                    view += '<td>Duplex</td><th>' + interface.duplex + '</th>';
+                    view += '</tr>';
+                    view += '</table>';
                     
                     if (interface.addresses){
-                        view += '<table class="table mb-0">';
-                        view += '<tr>';
-                        view += '<th>Family</th>';
-                        view += '<th>Address</th>';
-                        view += '<th>Netmask</th>';
-                        view += '<th>Broadcast</th>';
-                        view += '<th>PTP</th>';
+                        view += '<table class="table">';
+                        view += '<tr class="table-primary">';
+                        view += '<th class="text-center">Family</th>';
+                        view += '<th class="text-center">Address</th>';
+                        view += '<th class="text-center">Netmask</th>';
+                        view += '<th class="text-center">Broadcast</th>';
+                        view += '<th class="text-center">PTP</th>';
                         view += '</tr>';
+
                         for (var j = 0; j < interface.addresses.length; j++){
                             var address = interface.addresses[j],
                                 netmask = (address.netmask) ? address.netmask : '--',
                                 broadcast = (address.broadcast) ? address.broadcast : '--',
                                 ptp = (address.ptp) ? address.ptp : '--';
                             view += '<tr>';
-                            view += '<td>' + address.family + '</td>';
-                            view += '<td>' + address.address + '</td>';
-                            view += '<td>' + netmask + '</td>';
-                            view += '<td>' + broadcast + '</td>';
-                            view += '<td>' + ptp + '</td>';
+                            view += '<td class="text-center">' + address.family + '</td>';
+                            view += '<td class="text-center">' + address.address + '</td>';
+                            view += '<td class="text-center">' + netmask + '</td>';
+                            view += '<td class="text-center">' + broadcast + '</td>';
+                            view += '<td class="text-center">' + ptp + '</td>';
                             view += '</tr>'
                         }
                         view += '</table>';
                     }
-                    
-                    view += '</div>';
-                    view += '</div>';
                     view += '</div>';
                 }
-
-                view += '</div>';
             }
-            
+
             $('#network-interfaces').html(view);
         });
     }

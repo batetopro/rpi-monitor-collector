@@ -21,7 +21,9 @@ class NetworkInterfaceRegistry:
     def get_network_interfaces(cls, host_id):
         result = list()
 
-        for interface in NetworkInterfaceModel.objects.filter(host_id=host_id):
+        for interface in NetworkInterfaceModel.objects.\
+                filter(host_id=host_id).\
+                order_by('pk'):
             result.append({
                 'name': interface.name,
                 'ip4_address': interface.ip4_address,

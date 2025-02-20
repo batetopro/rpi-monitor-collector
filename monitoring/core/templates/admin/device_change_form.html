@@ -35,7 +35,7 @@
                   </div>
                 </li>
             </ul>            
-            <div class="card text-white mb-2">
+            <div class="card text-white">
                 <div class="card-body p-0">
                     {% if platform %}
                         <table class="table m-0">
@@ -90,7 +90,7 @@
                     <a class="nav-link active">Clocks</a>
                 </li>
             </ul>
-            <div class="card text-white mb-2">
+            <div class="card text-white">
                 <div class="card-body p-0">
                     <table class="table m-0">
                         <tr>
@@ -115,137 +115,148 @@
         </div>
     </div>
 
-    <ul class="nav nav-tabs">
-        <li class="nav-item dropdown">
-          <a class="nav-link active dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">CPU</a>
-          <div class="dropdown-menu" style="">
-            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#partitions-modal">Times</a>
-            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#partitions-modal">Use</a>
-          </div>
-        </li>
-        <li class="nav-link bg-light" title="Use">
-            <strong id="cpu-usage">--</strong>
-        </li>
-        <li class="nav-link bg-light"  title="Temperature">
-            <strong id="cpu-temperature">--</strong>
-        </li>
-        <li class="nav-link bg-light"  title="Frequency">
-            <strong id="cpu-frequency">--</strong>
-        </li>
-    </ul>
-    <div class="card text-white mb-2">
-        <div class="card-body p-0">
-            <div class="progress mb-0" style="display: none;">
-                <div class="progress-bar bg-primary" id="cpu-progresbar" role="progressbar"></div>
+    <div class="row">
+        <div class="col-xl-6">
+            <ul class="nav nav-tabs">
+                <li class="nav-item dropdown">
+                <a class="nav-link active dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">CPU</a>
+                <div class="dropdown-menu" style="">
+                    <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#partitions-modal">Times</a>
+                    <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#partitions-modal">Use</a>
+                </div>
+                </li>
+                <li class="nav-link bg-light" title="Use">
+                    <strong id="cpu-usage">--</strong>
+                </li>
+                <li class="nav-link bg-light"  title="Temperature">
+                    <strong id="cpu-temperature">--</strong>
+                </li>
+                <li class="nav-link bg-light"  title="Frequency">
+                    <strong id="cpu-frequency">--</strong>
+                </li>
+            </ul>
+            <div class="card text-white">
+                <div class="card-body p-0">
+                    <div class="progress mb-0" style="display: none;">
+                        <div class="progress-bar bg-primary" id="cpu-progresbar" role="progressbar"></div>
+                    </div>
+                    <!--
+                    <div class="progress mb-0" style="display: none;">
+                        <div class="progress-bar bg-primary" id="cpu-temperature-progresbar" role="progressbar"></div>
+                    </div>
+                    -->
+                    <div id="cpu-performance">
+                        <string>Loading ...</strong>
+                    </div>
+                </div>
             </div>
-            <div class="progress mb-0" style="display: none;">
-                <div class="progress-bar bg-primary" id="cpu-temperature-progresbar" role="progressbar"></div>
-            </div>
-            <div id="cpu-performance">
-                <string>Loading ...</strong>
+        </div>
+        <div class="col-xl-6">
+            <ul class="nav nav-tabs">
+                <li class="nav-item dropdown">
+                    <a class="nav-link active dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Memory</a>
+                    <div class="dropdown-menu" style="">
+                        <span class="dropdown-item">
+                            Total RAM:
+                            <strong id="total-ram">
+                                {% if total_ram %}
+                                    {{ total_ram | bytes_to_mbi }} MBi
+                                {% else %}
+                                    --
+                                {% endif %}
+                            </strong>
+                        </span>
+                        <span class="dropdown-item">
+                            Total swap:
+                            <strong id="total-swap"></strong>
+                        </span>
+                    </div>
+                </li>
+                <li class="nav-link bg-light" title="Used virtual memory">
+                    <strong id="used-ram">--</strong>
+                </li>
+                <li class="nav-link bg-light" title="Used swap">
+                    <strong id="used-swap">--</strong>
+                </li>
+            </ul>
+            <div class="card">
+                <div class="card-body p-0">
+                    <div class="progress mb-0" style="display: none;">
+                        <div class="progress-bar bg-primary" id="ram-progresbar" role="progressbar"></div>
+                    </div>
+                    <div id="ram-performance">
+                        <strong>Loading ...</strong>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <ul class="nav nav-tabs">
-        <li class="nav-item dropdown">
-            <a class="nav-link active dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Memory</a>
-            <div class="dropdown-menu" style="">
-                <span class="dropdown-item">
-                    Total RAM:
-                    <strong id="total-ram">
-                        {% if total_ram %}
-                            {{ total_ram | bytes_to_mbi }} MBi
-                        {% else %}
-                            --
-                        {% endif %}
-                    </strong>
-                </span>
-                <span class="dropdown-item">
-                    Total swap:
-                    <strong id="total-swap"></strong>
-                </span>
+    <div class="row">
+        <div class="col-xl-6">
+            <ul class="nav nav-tabs">
+                <li class="nav-item dropdown">
+                <a class="nav-link active dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Storage</a>
+                <div class="dropdown-menu" style="">
+                    <span class="dropdown-item">
+                        Available:
+                        <strong id="available-space">--</strong>
+                    </span>
+                    <span class="dropdown-item">
+                        Total:
+                        <strong id="total-space">--</strong>
+                    </span>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#storage-space-modal">Space</a>
+                    <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#storage-io-modal">I/O</a>
+                </div>
+                </li>
+                <li class="nav-link bg-light" title="Used space">
+                    <strong id="used-space">--</strong>
+                </li>
+                <li class="nav-link bg-light" title="Total read">
+                    <strong id="disk-io-read">--</strong>
+                </li>
+                <li class="nav-link bg-light" title="Total wirte">
+                    <strong id="disk-io-write">--</strong>
+                </li>
+            </ul>
+            <div class="card">
+                <div class="card-body p-0">
+                    <div class="progress mb-0" style="display: none;">
+                        <div class="progress-bar bg-primary" id="space-progresbar" role="progressbar"></div>
+                    </div>
+                    <div id="disc-performance">
+                        <strong>Loading ...</strong>
+                    </div>
+                </div>
             </div>
-        </li>
-        <li class="nav-link bg-light" title="Used virtual memory">
-            <strong id="used-ram">--</strong>
-        </li>
-        <li class="nav-link bg-light" title="Used swap">
-            <strong id="used-swap">--</strong>
-        </li>
-    </ul>
-    <div class="card mb-2">
-        <div class="card-body p-0">
-            <div class="progress mb-0" style="display: none;">
-                <div class="progress-bar bg-primary" id="ram-progresbar" role="progressbar"></div>
-            </div>
-            <div id="ram-performance">
-                <strong>Loading ...</strong>
+        </div>
+        <div class="col-xl-6">
+            <ul class="nav nav-tabs">
+                <li class="nav-item dropdown">
+                <a class="nav-link active dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Network</a>
+                <div class="dropdown-menu" style="">
+                    <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#net-interfaces-modal">Interfaces</a>
+                    <a class="dropdown-item" href="#">Ports</a>
+                    <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#net-io-modal">I/O</a>
+                </div>
+                </li>
+                <li class="nav-link bg-light" title="Total received">
+                    <strong id="network-received">--</strong>
+                </li>
+                <li class="nav-link bg-light" title="Total transmitted">
+                    <strong id="network-sent">--</strong>
+                </li>
+            </ul>
+            <div class="card text-white">
+                <div class="card-body p-0">
+                    <div id="network-performance">
+                        <strong>Loading ...</strong>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
-    <ul class="nav nav-tabs">
-        <li class="nav-item dropdown">
-          <a class="nav-link active dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Storage</a>
-          <div class="dropdown-menu" style="">
-            <span class="dropdown-item">
-                Available:
-                <strong id="available-space">--</strong>
-            </span>
-            <span class="dropdown-item">
-                Total:
-                <strong id="total-space">--</strong>
-            </span>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#storage-space-modal">Space</a>
-            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#storage-io-modal">I/O</a>
-          </div>
-        </li>
-        <li class="nav-link bg-light" title="Used space">
-            <strong id="used-space">--</strong>
-        </li>
-        <li class="nav-link bg-light" title="Total read">
-            <strong id="disk-io-read">--</strong>
-        </li>
-        <li class="nav-link bg-light" title="Total wirte">
-            <strong id="disk-io-write">--</strong>
-        </li>
-    </ul>
-    <div class="card mb-2">
-        <div class="card-body p-0">
-            <div class="progress mb-0" style="display: none;">
-                <div class="progress-bar bg-primary" id="space-progresbar" role="progressbar"></div>
-            </div>
-            <div id="disc-performance">
-                <strong>Loading ...</strong>
-            </div>
-        </div>
-    </div>
-
-    <ul class="nav nav-tabs">
-        <li class="nav-item dropdown">
-          <a class="nav-link active dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Network</a>
-          <div class="dropdown-menu" style="">
-            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#net-interfaces-modal">Interfaces</a>
-            <a class="dropdown-item" href="#">Ports</a>
-            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#net-io-modal">I/O</a>
-          </div>
-        </li>
-        <li class="nav-link bg-light" title="Total received">
-            <strong id="network-received">--</strong>
-        </li>
-        <li class="nav-link bg-light" title="Total transmitted">
-            <strong id="network-sent">--</strong>
-        </li>
-    </ul>
-    <div class="card text-white mb-2">
-        <div class="card-body p-0">
-            <div id="network-performance">
-                <strong>Loading ...</strong>
-            </div>
-        </div>
-    </div>
-
     <div class="modal" id="storage-space-modal">
         <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
           <div class="modal-content">
@@ -278,23 +289,6 @@
     </div>
 
 
-    <div class="modal" id="partitions-modal">
-        <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Storage partitions</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true"></span>
-              </button>
-            </div>
-            <div class="modal-body p-0" id="partitions">
-                <strong>Loading ...</strong>
-            </div>
-          </div>
-        </div>
-    </div>
-
-
     <div class="modal" id="net-interfaces-modal">
         <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
           <div class="modal-content">
@@ -304,7 +298,7 @@
                 <span aria-hidden="true"></span>
               </button>
             </div>
-            <div class="modal-body p-0" id="network-interfaces">
+            <div class="modal-body" id="network-interfaces">
                 <strong>Loading ...</strong>
             </div>
             <div class="modal-footer">
@@ -315,7 +309,7 @@
         </div>
     </div>
     <div class="modal" id="net-io-modal">
-        <div class="modal-dialog modal-dialog-scrollable modal-fullscreen" role="document">
+        <div class="modal-dialog modal-lg" role="document">
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title">Network I/O</h5>

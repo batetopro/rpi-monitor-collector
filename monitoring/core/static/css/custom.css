@@ -12,10 +12,14 @@ body{padding-top:120px}iframe{overflow:hidden;border:none}.navbar .bi{margin-rig
     padding-right: 0;
 }
 
-.pull-left{
+.network-counters{
+    width: calc(100% - 140px);
     float: left;
+    overflow-x: scroll;
 }
 
-.pull-right{
-    float: right;
+.network-counters td,
+.network-counters th {
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
