@@ -1,9 +1,9 @@
-{% load i18n static %}<!DOCTYPE html>
+{% load i18n static management %}<!DOCTYPE html>
 {% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
 <html lang="{{ LANGUAGE_CODE|default:"en-us" }}" dir="{{ LANGUAGE_BIDI|yesno:'rtl,ltr,auto' }}">
     <head>
         <title>{% block title %}{% endblock %}</title>
-        <link rel="stylesheet" href="{% block stylesheet %}//bootswatch.com/5/darkly/bootstrap.min.css{% endblock %}">
+        <link rel="stylesheet" href="{% block stylesheet %}//bootswatch.com/5/{% admin_theme %}/bootstrap.min.css{% endblock %}">
         {% if not is_popup and is_nav_sidebar_enabled %}
             <link rel="stylesheet" href="{% static "admin/css/nav_sidebar.css" %}">
             <script src="{% static 'admin/js/nav_sidebar.js' %}" defer></script>
@@ -13,7 +13,7 @@
         <script src="//bootswatch.com/_vendor/bootstrap/dist/js/bootstrap.bundle.min.js" defer></script>
 
         {% block extrastyle %}{% endblock %}
-        {% if LANGUAGE_BIDI %}<link rel="stylesheet" href="{% block stylesheet_rtl %}{% static "//bootswatch.com/5/darkly/bootstrap.rtl.min.css" %}{% endblock %}">{% endif %}
+        {% if LANGUAGE_BIDI %}<link rel="stylesheet" href="{% block stylesheet_rtl %}//bootswatch.com/5/{% admin_theme %}/bootstrap.rtl.min.css"{% endblock %}">{% endif %}
         {% block extrahead %}{% endblock %}
         {% block responsive %}
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -121,7 +121,7 @@
                     </div>
                 </div>
                 {% block nav-breadcrumbs %}
-                    <div class="navbar bg-secondary" data-bs-theme="dark" id="breadcrumb-navbar">
+                    <div class="navbar bg-light" id="breadcrumb-navbar">
                         <div class="container">
                                 <div class="float-start">
                                     {% block breadcrumbs %}

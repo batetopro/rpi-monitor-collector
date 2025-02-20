@@ -162,3 +162,4 @@ REDIS = {
 }
 
 LOCATION = os.getenv('LOCATION')
+THEME = os.getenv('THEME')
