@@ -177,3 +177,7 @@ redis.ini
 mariadb
 /data
 /keys
+/config/my*.ini
+/config/redis*.ini
+/config/*.env
+

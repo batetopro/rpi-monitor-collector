@@ -8,7 +8,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - ENV_PATH=/config/.env
+      - ENV_PATH=/config/dev.env
     volumes:
       - ./monitoring:/monitoring
       - ./config:/config
@@ -19,7 +19,7 @@ services:
               python manage.py wait_for_db && 
               python manage.py migrate &&
               python manage.py collectstatic --clear --noinput &&
-              gunicorn monitoring.wsgi --bind 0.0.0.0:8000 --error-logfile '-'"
+              python manage.py runserver 0.0.0.0:8000"
     depends_on:
       - db
       - redis
@@ -28,7 +28,7 @@ services:
       context: .
     container_name: rpi-collector
     environment:
-      - ENV_PATH=/config/.env
+      - ENV_PATH=/config/dev.env
     command: sh -c "python manage.py collect"
     volumes:
       - ./monitoring:/monitoring
@@ -41,7 +41,9 @@ services:
   db:
     image: mariadb
     volumes:
-       - ./mariadb:/var/lib/mysql:Z
+      - ./mariadb:/var/lib/mysql:Z
+    ports:
+      - "3306:3306"
     environment:
       - MARIADB_RANDOM_ROOT_PASSWORD=yes
       - MARIADB_DATABASE=rpi-management
@@ -49,6 +51,8 @@ services:
       - MARIADB_PASSWORD=changeme
   redis:
     image: redis
+    ports:
+      - "6379:6379"
     command: ["redis-server", "/etc/redis/redis.conf"]
     volumes:
       - ./config/redis.conf:/etc/redis/redis.conf

@@ -17,7 +17,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 
-load_dotenv()
+load_dotenv(dotenv_path=os.getenv('ENV_PATH'))
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -150,7 +150,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 redis_config = configparser.ConfigParser()
-redis_config.read('redis.ini')
+redis_config.read(os.getenv('REDIS_CONF'))
 
 
 REDIS = {
