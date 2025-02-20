@@ -85,15 +85,35 @@ var device_details = {
         if (cpu_temperature){
             $('#cpu-temperature').text(cpu_temperature + ' C');
             if (cpu_temperature >= 85){
-                $('#cpu-temperature').removeClass('bg-secondary').removeClass('bg-warning').addClass('bg-danger');
+                // $('#cpu-temperature').removeClass('bg-secondary').removeClass('bg-warning').addClass('bg-danger');
             } else if (cpu_temperature >= 70) {
-                $('#cpu-temperature').removeClass('bg-secondary').addClass('bg-warning').removeClass('bg-danger');
+                // $('#cpu-temperature').removeClass('bg-secondary').addClass('bg-warning').removeClass('bg-danger');
             } else {
-                $('#cpu-temperature').addClass('bg-secondary').removeClass('bg-warning').removeClass('bg-danger');
+                // $('#cpu-temperature').addClass('bg-secondary').removeClass('bg-warning').removeClass('bg-danger');
+            }
+
+            $('#cpu-temperature-progresbar').parent().show();
+            $('#cpu-temperature-progresbar').attr({
+                'aria-valuenow': cpu_temperature,
+                'aria-valuemin': 0,
+                'aria-valuemax': 100,
+            }).css({
+                'width': cpu_temperature + '%',
+            });
+
+            if (cpu_temperature >= 85){
+                // $('#cpu-usage').removeClass('bg-light').removeClass('bg-warning').addClass('bg-danger');
+                $('#cpu-temperature-progresbar').removeClass('bg-primary').removeClass('bg-warning').addClass('bg-danger');
+            } else if (cpu_temperature >= 70) {
+                // $('#cpu-usage').removeClass('bg-light').addClass('bg-warning').removeClass('bg-danger');
+                $('#cpu-temperature-progresbar').removeClass('bg-primary').addClass('bg-warning').removeClass('bg-danger');
+            } else {
+                // $('#cpu-usage').addClass('bg-light').removeClass('bg-warning').removeClass('bg-danger');
+                $('#cpu-temperature-progresbar').addClass('bg-primary').removeClass('bg-warning').removeClass('bg-danger');
             }
         } else {
             $('#cpu-temperature').text('--');
-            $('#cpu-temperature').removeClass('bg-secondary').removeClass('bg-warning').removeClass('bg-danger');
+            // $('#cpu-temperature').removeClass('bg-secondary').removeClass('bg-warning').removeClass('bg-danger');
         }
     },
 
@@ -111,19 +131,19 @@ var device_details = {
             });
 
             if (cpu_usage >= 85){
-                $('#cpu-usage').removeClass('bg-secondary').removeClass('bg-warning').addClass('bg-danger');
+                // $('#cpu-usage').removeClass('bg-light').removeClass('bg-warning').addClass('bg-danger');
                 $('#cpu-progresbar').removeClass('bg-primary').removeClass('bg-warning').addClass('bg-danger');
             } else if (cpu_usage >= 70) {
-                $('#cpu-usage').removeClass('bg-secondary').addClass('bg-warning').removeClass('bg-danger');
+                // $('#cpu-usage').removeClass('bg-light').addClass('bg-warning').removeClass('bg-danger');
                 $('#cpu-progresbar').removeClass('bg-primary').addClass('bg-warning').removeClass('bg-danger');
             } else {
-                $('#cpu-usage').addClass('bg-secondary').removeClass('bg-warning').removeClass('bg-danger');
+                // $('#cpu-usage').addClass('bg-light').removeClass('bg-warning').removeClass('bg-danger');
                 $('#cpu-progresbar').addClass('bg-primary').removeClass('bg-warning').removeClass('bg-danger');
             }
         } else {
             $('#cpu-progresbar').parent().hide();
             $('#cpu-usage').text('--');
-            $('#cpu-usage').removeClass('bg-secondary').removeClass('bg-warning').removeClass('bg-danger');
+            // $('#cpu-usage').removeClass('bg-light').removeClass('bg-warning').removeClass('bg-danger');
         }
     },
     show_disk_io: function(read, write){
@@ -145,11 +165,39 @@ var device_details = {
     },
     show_disk_partitions: function(partitions){
         if (partitions === null){
-            $('#partitions').html('<div class="alert bg-info">Information about storge partitions is not collected yet.</div>');
+            $('#storage-space').html('<div class="alert bg-info">Information about storge space is not collected yet.</div>');
+            $('#storage-io').html('<div class="alert bg-info">Information about storge space is not collected yet.</div>');
             return;
         }
 
-        var view = '';
+        var space_view = '',
+            io_view = '',
+            total_space_available = 0,
+            total_space_used = 0,
+            total_space = 0,
+            total_io_read_bytes = 0,
+            total_io_read_count = 0,
+            total_io_read_time = 0,
+            total_io_write_bytes = 0,
+            total_io_write_count = 0,
+            total_io_write_time = 0;
+        
+        space_view += '<table class="table mb-0">';
+        space_view += '<tr class="table-primary"><th>Device</th>';
+        space_view += '<th class="text-center">Used</th>'
+        space_view += '<th class="text-center">Available</th>'
+        space_view += '<th class="text-center">Total</th>'
+        space_view += '</tr>';
+        
+
+        io_view += '<table class="table mb-0">';
+        io_view += '<tr class="table-primary"><th>Device</th><th>&nbsp;</th>';
+        io_view += '<th class="text-center">Bytes</th>'
+        io_view += '<th class="text-center">Count</th>'
+        io_view += '<th class="text-center">Time</th>'
+        io_view += '</tr>';
+
+        
         for (var i = 0; i < partitions.length ; i++){
             var partition = partitions[i],
                 space_available = (partition.space_available / (1024 * 1024 * 1024)).toFixed(2) + ' GBi',
@@ -159,43 +207,76 @@ var device_details = {
                 space_badge = (space_usage >= 85) ? 'bg-danger' : (space_usage >= 70) ? 'bg-warning' : 'bg-primary',
                 io_read_bytes = (partition.io_read_bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GBi',
                 io_write_bytes = (partition.io_write_bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GBi';
+                header = '';
             
-            view += '<div class="container">';
-            view += '<h4 title="' + partition.opts + '">' + partition.device + '</h4>';
-            view += '<div class="clearfix">'
-            view += '<div class="float-start">Mountpoint: <strong>' + partition.mountpoint + '</strong></div>';
-            view += '<div class="float-end">Type: <strong>' + partition.fstype + '</strong></div>';
-            view += '</div>';
-            view += '<div class="progress mb-0">' + 
+            total_space_available += partition.space_available;
+            total_space_used += partition.space_used;
+            total_space += partition.space_total;
+            
+            total_io_read_bytes += partition.io_read_bytes;
+            total_io_read_count += partition.io_read_count;
+            total_io_read_time += partition.io_read_time;
+            total_io_write_bytes += partition.io_write_bytes;
+            total_io_write_count += partition.io_write_count;
+            total_io_write_time += partition.io_write_time;
+
+            header = '<h5 title="' + partition.opts + '">' + partition.device + '</h5>'
+            header += '<div class="progress mb-0">' + 
                 '<div class="progress-bar ' + space_badge + '" role="progressbar" aria-valuenow="' + space_usage + '" aria-valuemin="0" aria-valuemax="100" style="width: ' + space_usage + '%;"></div>' + 
                 '</div>';
-
-            view += '</div>';
-
-            view += '<div class="container"><div class="row align-items-start"><div class="col-md-6">';
-            view += 'Space';
-            view += '<table class="table mb-0">';
-            view += '<tr><th width="120">Available</th><td>' + space_available + '</td></tr>';
-            view += '<tr><th>Used</th><td>' + space_used + '</td></tr>';
-            view += '<tr><th>Total</th><td>' + space_total + '</td></tr>';
-            view += '</table>';
+            header += 'Mountpoint: <strong>' + partition.mountpoint + '</strong><br>'
+            header += 'Type: <strong>' + partition.fstype + '</strong><br>'
             
-            view += '</div><div class="col-md-6">';
-            view += 'I/O';
-            view += '<table class="table mb-0">';
-            view += '<tr><th width="120">&nbsp;</th><th>Read</th><th>Write</th></tr>';
-            view += '<tr><th>Bytes</th><td>' + io_read_bytes + '</td><td>' + io_write_bytes + '</td></tr>';
-            view += '<tr><th>Count</th><td>' + partition.io_read_count + '</td><td>' + partition.io_write_count + '</td></tr>';
-            view += '<tr><th>Time</th><td>' + format_interval(partition.io_read_time / 1000) + '</td><td>' + format_interval(partition.io_write_time / 1000) + '</td></tr>';
-            view += '</table>';
-            view += '</div></div></div>';
-
-            if (i < partitions.length - 1){
-                view += '<hr/>';
-            }
+            space_view += '<tr>'
+            space_view += '<td width="240">' + header + '</td>';
+            space_view += '<td class="text-center">' + space_available + '</td>';
+            space_view += '<td class="text-center">' + space_used + '</td>';
+            space_view += '<td class="text-center">' + space_total + '</td>';
+            space_view += '</tr>'
+            
+            
+            io_view += '<tr>'
+            io_view += '<td width="240" rowspan="2">' + header + '</td>';
+            io_view += '<th class="text-center">Read</th>';
+            io_view += '<td class="text-center">' + io_read_bytes + '</td>';
+            io_view += '<td class="text-center">' + partition.io_write_count + '</td>';
+            io_view += '<td class="text-center">' + format_interval(partition.io_read_time / 1000) + '</td>';
+            io_view += '</tr>'
+            
+            io_view += '<tr>'
+            io_view += '<th class="text-center">Write</th>';
+            io_view += '<td class="text-center">' + io_write_bytes + '</td>';
+            io_view += '<td class="text-center">' + partition.io_read_count + '</td>';
+            io_view += '<td class="text-center">' + format_interval(partition.io_write_time / 1000) + '</td>';
+            io_view += '</tr>'
         }
 
-        $('#partitions').html(view);
+        space_view += '<tr class="table-primary"><th>&nbsp;</th>';
+        space_view += '<th class="text-center">' + (total_space_used / (1024 * 1024 * 1024)).toFixed(2) + ' GBi' + '</th>'
+        space_view += '<th class="text-center">' + (total_space_available / (1024 * 1024 * 1024)).toFixed(2) + ' GBi' + '</th>'
+        space_view += '<th class="text-center">' + (total_space / (1024 * 1024 * 1024)).toFixed(2) + ' GBi' + '</th>'
+        space_view += '</tr>';
+        space_view += '</table>'
+
+
+        io_view += '<tr class="table-primary"><th rowspan="2">&nbsp;</th>';
+        io_view += '<th class="text-center">Read</th>'
+        io_view += '<th class="text-center">' + (total_io_read_bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GBi' + '</th>'
+        io_view += '<th class="text-center">' + total_io_read_count + '</th>'
+        io_view += '<th class="text-center">' + format_interval(total_io_read_time / 1000) + '</th>'
+        io_view += '</tr>';
+
+        io_view += '<tr class="table-primary">';
+        io_view += '<th class="text-center">Weite</th>'
+        io_view += '<th class="text-center">' + (total_io_write_bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GBi' + '</th>'
+        io_view += '<th class="text-center">' + total_io_write_count + '</th>'
+        io_view += '<th class="text-center">' + format_interval(total_io_write_time / 1000) + '</th>'
+        io_view += '</tr>';
+
+        io_view += '</table>'
+
+        $('#storage-space').html(space_view);
+        $('#storage-io').html(io_view);
     },
     show_disk_space: function(available, used, total){
         if (available !== null){
@@ -396,16 +477,19 @@ var device_details = {
             });
 
             if (used_ram_percent >= 85){
-                $('#used-ram').removeClass('bg-secondary').removeClass('bg-warning').addClass('bg-danger');
+                $('#ram-progresbar').removeClass('bg-primary').removeClass('bg-warning').addClass('bg-danger');
+                // $('#used-ram').removeClass('bg-secondary').removeClass('bg-warning').addClass('bg-danger');
             } else if (used_ram_percent >= 70) {
-                $('#used-ram').removeClass('bg-secondary').addClass('bg-warning').removeClass('bg-danger');
+                // $('#used-ram').removeClass('bg-secondary').addClass('bg-warning').removeClass('bg-danger');
+                $('#ram-progresbar').removeClass('bg-primary').addClass('bg-warning').removeClass('bg-danger');
             } else {
-                $('#used-ram').addClass('bg-secondary').removeClass('bg-warning').removeClass('bg-danger');
+                // $('#used-ram').addClass('bg-secondary').removeClass('bg-warning').removeClass('bg-danger');
+                $('#ram-progresbar').addClass('bg-primary').removeClass('bg-warning').removeClass('bg-danger');
             }
         } else {
             $('#ram-progresbar').parent().hide();
             $('#used-ram').text('--');
-            $('#used-ram').removeClass('bg-secondary').removeClass('bg-warning').removeClass('bg-danger');
+            // $('#used-ram').removeClass('bg-secondary').removeClass('bg-warning').removeClass('bg-danger');
         }
     }
 }
